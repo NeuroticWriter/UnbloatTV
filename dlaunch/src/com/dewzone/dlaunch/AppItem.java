@@ -47,3 +47,4 @@ public class AppItem {
         isFavorite = favorite;
     }
 }
+

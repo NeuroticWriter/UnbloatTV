@@ -46,3 +46,4 @@ To compile and sign `dlaunch.apk` from source:
 ```
 Requires Java 8+ and Android SDK platform-34 / build-tools 34+.
 Builds and signs a production-ready release in `< 3 seconds`.
+

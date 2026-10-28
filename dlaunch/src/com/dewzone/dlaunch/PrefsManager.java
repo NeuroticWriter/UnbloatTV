@@ -78,3 +78,4 @@ public class PrefsManager {
         prefs.edit().remove(KEY_HIDDEN).apply();
     }
 }
+

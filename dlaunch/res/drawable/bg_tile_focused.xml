@@ -7,3 +7,4 @@
         android:width="2.5dp"
         android:color="@color/card_border_focused" />
 </shape>
+

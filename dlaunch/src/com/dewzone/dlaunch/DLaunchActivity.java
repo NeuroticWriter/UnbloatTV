@@ -242,11 +242,26 @@ public class DLaunchActivity extends Activity {
                                 1.0f
                         );
                         dummy.setLayoutParams(dummyParams);
+                        dummy.setFocusable(false);
+                        dummy.setFocusableInTouchMode(false);
                         rowLayout.addView(dummy);
                     }
                 }
 
                 allAppsContainer.addView(rowLayout);
+            }
+        }
+
+        // Ensure remote focus lands immediately on first tile with 0 clicks
+        if (favoritesRow != null && favoritesRow.getChildCount() > 0) {
+            favoritesRow.getChildAt(0).requestFocus();
+        } else if (allAppsContainer != null && allAppsContainer.getChildCount() > 0) {
+            View firstChild = allAppsContainer.getChildAt(0);
+            if (firstChild instanceof LinearLayout) {
+                LinearLayout firstRow = (LinearLayout) firstChild;
+                if (firstRow.getChildCount() > 0) {
+                    firstRow.getChildAt(0).requestFocus();
+                }
             }
         }
     }
@@ -255,8 +270,9 @@ public class DLaunchActivity extends Activity {
         View tile = inflater.inflate(R.layout.item_app_tile, parent, false);
 
         LinearLayout.LayoutParams params;
+        float density = getResources().getDisplayMetrics().density;
         if (isFavoriteShelf) {
-            int tileWidth = getResources().getDimensionPixelSize(android.R.dimen.app_icon_size) * 3;
+            int tileWidth = (int) (180 * density);
             params = new LinearLayout.LayoutParams(tileWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(8, 8, 8, 8);
         } else {
@@ -271,6 +287,18 @@ public class DLaunchActivity extends Activity {
 
         if (app.getIcon() != null) {
             iconView.setImageDrawable(app.getIcon());
+            int w = app.getIcon().getIntrinsicWidth();
+            int h = app.getIcon().getIntrinsicHeight();
+            if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
+                // Wide Leanback 16:9 banner
+                iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+                iconView.getLayoutParams().height = (int) (64 * density);
+            } else {
+                // Standard square app icon
+                int size = (int) (64 * density);
+                iconView.getLayoutParams().width = size;
+                iconView.getLayoutParams().height = size;
+            }
         }
 
         labelView.setText(app.getLabel());
