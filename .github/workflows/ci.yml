@@ -43,3 +43,4 @@ jobs:
         bash -n tools/debloat.sh
         bash -n tools/restore.sh
         bash -n tools/status.sh
+

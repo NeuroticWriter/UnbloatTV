@@ -23,7 +23,9 @@ wheels/
 
 # Android / ADB
 *.apk
-*.apks
+!dlaunch/dlaunch.apk
+!tools/dlaunch.apk
+*.idsig
 *.dex
 *.oat
 *.art

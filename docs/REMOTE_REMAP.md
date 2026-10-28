@@ -2,16 +2,16 @@
 
 Most Android & Google TV remotes ship with hardcoded, sponsored buttons (e.g. Netflix, Prime Video, Disney+, YouTube, or manufacturer buttons) that cannot be changed in standard TV settings.
 
-This guide explains how to remap those buttons to open **SmartTube**, **Projectivy Launcher**, or **HDMI Inputs** instantly.
+This guide explains how to remap those buttons to open **SmartTube**, **DLaunch**, or **HDMI Inputs** instantly.
 
 ---
 
-## Method 1: Using Projectivy Launcher's Built-in Override (Easiest & Free)
+## Method 1: Setting DLaunch as Default Home (Instant & Zero Delay)
 
-If you use **Projectivy Launcher**:
-1. Open **Projectivy Settings** ➔ **General** ➔ **Override Home Button**.
-2. Turn ON **"Detect Home key press"** and enable the Accessibility Service when prompted.
-3. Your TV's physical **Home** button will now land on Projectivy Launcher with zero delay.
+When you install **DLaunch** via UnbloatTV:
+1. Run `./unbloat.sh --dlaunch -y` (or select option `[6]` in the menu).
+2. UnbloatTV installs DLaunch, pre-compiles it to native ARM speed code, and disables the bloated stock launcher.
+3. Your TV's physical **Home** button lands directly on DLaunch with zero lag and zero ads.
 
 ---
 
@@ -53,3 +53,4 @@ adb shell input keyevent KEYCODE_TV_INPUT_HDMI_1
 # Trigger Volume Mute
 adb shell input keyevent KEYCODE_VOLUME_MUTE
 ```
+

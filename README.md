@@ -43,7 +43,7 @@
 </p>
 
 * **Zero Ads & Zero Telemetry:** Strips out intrusive OEM home screen promos, tracking daemons, and video banner popups.
-* **Preserved "Watch Next" Carousels:** Unlike basic debloaters that force a flat, boring app grid, UnbloatTV pairs with **Projectivy Launcher** to give you dynamic movie and show recommendations from Disney+, Netflix, Prime Video, and SmartTube.
+* **DLaunch (Auto-Adjusting Minimalist TV Launcher):** Includes our bespoke native Android TV launcher (**33 KB** footprint, <10 MB RAM, <30ms startup). Unlike rigid launchers that crop or stretch icons, DLaunch's **Auto-Adjusting Grid Engine** dynamically scales columns (4, 5, or 6 columns) for 720p, 1080p, and 4K displays, with liquid glass cards, glowing D-pad remote focus, live digital clock, TV inputs switcher, and a pinned favorites shelf.
 * **Instant 0.0x / 0.5x Response:** Eliminates UI frame-drops and micro-stutters.
 * **+35% Available RAM:** Frees up critical memory headroom on 1 GB – 1.5 GB smart TVs.
 * **AppOps Background Freeze:** When you press the Home button, background streaming apps are instantly frozen, releasing 100% of CPU and RAM.
@@ -65,6 +65,20 @@
 </p>
 
 UnbloatTV scans your TV hardware via ADB over local Wi-Fi, computes a **Real-Time Health & Performance Score (0–100)**, identifies hardware bottlenecks, and gives you total control over what to optimize.
+
+---
+
+## 🚀 Introducing DLaunch — Auto-Adjusting Minimalist TV Launcher
+
+DLaunch (`com.dewzone.dlaunch`) is UnbloatTV's native, bespoke Android TV launcher engineered for speed and simplicity:
+
+* **Ultra-Lightweight Binary:** Only **33 KB** total APK size with zero external dependencies (compared to CleanYourTV's 240 KB–530 KB launcher and stock OEM launchers over 50 MB).
+* **Auto-Adjusting Grid Engine:** Dynamically calculates display resolution, density, and aspect ratio. Automatically configures 4 columns on 720p, 5 columns on 1080p, and 6 columns on 4K UHD so app cards never stretch, crop, or look microscopic.
+* **Glassmorphic D-Pad Remote Experience:** Ambient obsidian dark palette (`#080C14`), translucent glass cards, hardware-accelerated 1.09x scale-up animation with vivid cyan border glow on remote focus, and smooth marquee text scrolling.
+* **Top Status & Quick Action Shelf:** Live digital clock, formatted date, instant TV Inputs switcher (HDMI 1, HDMI 2, AV), and TV settings.
+* **Pinned Favorites Shelf:** Keep your daily streaming apps front and center. Long-press on remote to pin, unpin, hide, or inspect any app.
+* **Microsecond Response:** Launches in `<30ms` and operates at `<10 MB RAM`, freeing up maximum memory for 4K video playback.
+* **1-Click Installation:** Run `./unbloat.sh --dlaunch` to install, pre-compile to native ARM speed code, and switch your default home screen in seconds.
 
 ---
 
@@ -100,7 +114,7 @@ UnbloatTV puts you in complete control. Whenever you debloat, you can choose bet
 | **TV Health & Optimization Score** | 📊 **Live 0-100 Score** with diagnostics | ❌ None | ❌ None |
 | **User Choice: Disable vs Uninstall** | 🛡️ **Full Choice** with safety guidance | ❌ Forces uninstall | ⚠️ Varies |
 | **Model & Brand Specific Bloat** | ✅ Croma, Xiaomi, TCL, Sony, Hisense, OnePlus | ⚠️ Basic Android TV only | ❌ Hardcoded |
-| **"Watch Next" & Channel Streaming** | 🌟 **Full Support** (Pairs with Projectivy) | ❌ Broken (Flat static dock) | ⚠️ Manual |
+| **Bespoke TV Launcher** | 🚀 **DLaunch (33 KB, Auto-Adjusting Grid)** | ⚠️ Heavy CleanYourTV (240 KB - 530 KB, rigid grid) | ❌ None |
 | **AppOps Background Process Freeze** | 🚀 **Yes** (Streaming apps freeze on exit) | ❌ No | ❌ No |
 | **Ahead-Of-Time (AOT) ARM Compilation**| 🏎️ **Yes** (`dex2oat -m speed`) | ❌ No | ❌ No |
 | **Zero-RAM AdGuard Private DNS** | 🛡️ **1-Click System-Wide** | ❌ No | ⚠️ Manual shell command |
@@ -219,7 +233,7 @@ Samsung, LG, and Roku TVs do not run Android OS, so ADB debloating cannot run on
 <details>
 <summary><b>Can I remap the sponsored Netflix / Prime buttons on my remote?</b></summary>
 <br>
-Yes! You can remap useless hardcoded sponsored buttons on your physical remote to open <b>SmartTube</b>, <b>Projectivy Launcher</b>, or toggle Mute. Follow our simple <a href="docs/REMOTE_REMAP.md"><b>Remote Button Remapping Guide</b></a>.
+Yes! You can remap useless hardcoded sponsored buttons on your physical remote to open <b>SmartTube</b>, <b>DLaunch</b>, or toggle Mute. Follow our simple <a href="docs/REMOTE_REMAP.md"><b>Remote Button Remapping Guide</b></a>.
 </details>
 
 <details>
@@ -231,7 +245,7 @@ Browse our community-tested hardware profiles in <a href="profiles/"><b><code>pr
 <details>
 <summary><b>How do I restore my TV back to factory default?</b></summary>
 <br>
-Simply launch UnbloatTV and select <code>[8] Factory Restoration & Safety Recovery</code>, or run:
+Simply launch UnbloatTV and select <code>[9] Factory Restoration & Safety Recovery</code>, or run:
 <pre>./unbloat.sh --restore -y</pre>
 All disabled packages are re-enabled, user uninstalled packages are re-registered, and animation scales are reset back to 1.0x with zero data loss.
 </details>

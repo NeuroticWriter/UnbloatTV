@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Outer Shield / D geometric frame -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M20,16 L52,16 C68,16 78,28 78,48 C78,68 68,80 52,80 L20,80 Z M32,28 L32,68 L50,68 C60,68 66,59 66,48 C66,37 60,28 50,28 Z" />
+    <!-- Modern Tech Accent Node -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M40,40 L48,40 L48,56 L40,56 Z" />
+</vector>

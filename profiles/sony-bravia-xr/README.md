@@ -8,3 +8,4 @@
 - Disables **Samba TV ACR Tracking** (`com.samba.cast`), which fingerprints viewing habits.
 - Removes Sony promotional recommendation feeds.
 - Completely preserves Sony's Cognitive XR picture processing engine, HDMI eARC, and Bravia Sync.
+

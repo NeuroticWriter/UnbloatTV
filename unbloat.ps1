@@ -28,3 +28,4 @@ if (Test-Path $LocalTool) {
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/tools/unbloat.py" -OutFile $TempTool
     python $TempTool $args
 }
+

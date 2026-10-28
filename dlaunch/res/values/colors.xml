@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark obsidian minimalist palette -->
+    <color name="bg_dark">#080C14</color>
+    <color name="bg_gradient_end">#0D1524</color>
+
+    <!-- Translucent glass cards -->
+    <color name="card_bg_normal">#141E2E</color>
+    <color name="card_border_normal">#253549</color>
+
+    <!-- Glowing focus highlight -->
+    <color name="card_bg_focused">#1E2E48</color>
+    <color name="card_border_focused">#00E5FF</color>
+    <color name="card_focus_glow">#3300E5FF</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_accent">#00E5FF</color>
+
+    <!-- Header Pills -->
+    <color name="pill_bg_normal">#101A29</color>
+    <color name="pill_border_normal">#233346</color>
+    <color name="pill_bg_focused">#00E5FF</color>
+    <color name="pill_text_focused">#080C14</color>
+
+    <!-- Accent / Favorite Badge -->
+    <color name="badge_star">#FBBF24</color>
+</resources>

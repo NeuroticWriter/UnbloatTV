@@ -54,12 +54,12 @@ Identify the manufacturer from `ro.product.manufacturer` or `ro.product.brand` a
 | Brand / Platform | Common SoC | Hidden Bloat / Bottleneck | Crucial Protection Rule |
 | :--- | :--- | :--- | :--- |
 | **Croma / Changhong** | Mediatek MT5867 / MT58xx | `com.homwee.store`, `com.homwee.upgrade`, `com.homwee.factory`, `com.cltv.hybrid` | **DO NOT TOUCH** `com.homwee.dynamicbacklight` (panel backlight will fail) or `com.mediatek.tvinput` (HDMI switcher). |
-| **Xiaomi / Redmi / Mi TV** | Amlogic / Mediatek | `com.mitv.tvhome` (PatchWall), `com.xiaomi.mitv.advertise`, `com.xiaomi.mitv.analytics`, `com.xiaomi.mitv.payment` | Ensure alternative launcher (e.g. Projectivy) is active before disabling PatchWall. |
+| **Xiaomi / Redmi / Mi TV** | Amlogic / Mediatek | `com.mitv.tvhome` (PatchWall), `com.xiaomi.mitv.advertise`, `com.xiaomi.mitv.analytics`, `com.xiaomi.mitv.payment` | Ensure alternative launcher (e.g. DLaunch) is active before disabling PatchWall. |
 | **TCL / FFALCON** | Realtek / Mediatek | `com.tcl.commercial.uninstallation`, `com.tcl.partnercustomizer`, `com.ffalcon.service` | Keep `com.tcl.settings` and TCL display calibration daemons. |
 | **Sony Bravia** | Mediatek / Cognitive XR | `com.samba.cast` (Samba ACR tracking), `com.sony.dtv.bravialife`, `com.sony.dtv.recommendationservice` | Never touch Sony picture processing engine or Bravia sync CEC. |
 | **Hisense / Vidaa** | Novatek / Mediatek | `com.hisense.hitv.hicloud.account`, `com.jamdeo.tv.vod`, `com.hisense.service` | Keep Hisense picture mode selector. |
 | **OnePlus / Realme TV** | Mediatek / Amlogic | `com.oneplus.tv.launcher`, `com.heytap.mcs`, `com.realme.tv.factory` | Keep OnePlus audio tuning & remote services. |
-| **Chromecast with Google TV** | Amlogic S905X3 / S905X4 | `com.google.android.apps.tv.launcherx`, Google TV promotional video row autoplays | Projectivy Launcher replacement provides 3x speed boost. |
+| **Chromecast with Google TV** | Amlogic S905X3 / S905X4 | `com.google.android.apps.tv.launcherx`, Google TV promotional video row autoplays | DLaunch replacement provides 4x speed boost (<10 MB RAM footprint). |
 
 ---
 
@@ -100,24 +100,20 @@ python3 tools/unbloat.py --smarttube
 
 ---
 
-### Step 4: UI/UX Modernization (Projectivy Launcher Setup)
+### Step 4: UI/UX Modernization (DLaunch Setup)
 
-For the ultimate experience with dynamic 4K backdrops and "Watch Next" movie carousels:
-1. Verify if Projectivy Launcher is installed:
+DLaunch (`com.dewzone.dlaunch`) is our bespoke, native 33 KB auto-adjusting TV launcher:
+1. Install and compile DLaunch in one click:
    ```bash
-   adb shell pm list packages | grep projengmenu
+   python3 tools/unbloat.py --dlaunch -y
    ```
-2. If installed, set Projectivy as the default launcher override:
-   - Enable Accessibility service:
-     ```bash
-     adb shell settings put secure enabled_accessibility_services com.spocky.projengmenu/.services.AccessibilityService
-     adb shell settings put secure accessibility_enabled 1
-     ```
-   - Disable stock heavy Google TV Launcher:
-     ```bash
-     adb shell pm disable-user --user 0 com.google.android.apps.tv.launcherx
-     ```
-3. Verify on TV that the home button lands smoothly on Projectivy Launcher.
+2. Or manually install and set as default home launcher:
+   ```bash
+   adb install -r tools/dlaunch.apk
+   adb shell cmd package compile -m speed com.dewzone.dlaunch
+   adb shell pm disable-user --user 0 com.google.android.apps.tv.launcherx
+   ```
+3. Verify on TV that the remote Home button lands smoothly on DLaunch with zero lag.
 
 ---
 

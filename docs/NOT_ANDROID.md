@@ -49,3 +49,4 @@ Since non-Android TVs cannot change their Private DNS hostname directly in TV se
 - **Secondary DNS:** `94.140.15.15`
 
 This automatically blocks tracking domains and banner ads for **every device** connected to your home Wi-Fi, including Samsung and LG smart TVs!
+

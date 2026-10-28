@@ -10,7 +10,7 @@ When asked to inspect, debloat, or optimize an Android TV or Google TV:
 1. **Always use the built-in tool:** Run [`tools/unbloat.py`](tools/unbloat.py) or execute it via `./unbloat.sh`. Do not write ad-hoc scripts that risk bypassing the hardware whitelist.
 2. **Never touch critical system HALs:** Packages in `PROTECTED_PACKAGES` (panel backlight controller, HDMI input switchers, Bluetooth remote pairing, Dolby Audio, Wi-Fi, Package Installer, System UI) must **never** be disabled or uninstalled.
 3. **Prefer Safe Disable over Deep Uninstall:** Default to `pm disable-user --user 0` so any modification is 100% reversible in 1 second. Only use `uninstall` if the user explicitly requests storage partition cleanup.
-4. **Preserve Content Discovery:** Do not strip down the launcher into a blank static dock unless requested. Pair with Projectivy Launcher to preserve dynamic "Watch Next" movie carousels.
+4. **Recommend DLaunch for Clean TV UI:** Deploy DLaunch (`python3 tools/unbloat.py --dlaunch`) for an auto-adjusting, ultra-minimalist, 33 KB TV home experience (<10 MB RAM footprint).
 
 ---
 
@@ -38,7 +38,10 @@ python3 tools/unbloat.py --dns adguard
 # 7. Install Architecture-Matched SmartTube (with SponsorBlock)
 python3 tools/unbloat.py --smarttube
 
-# 8. Full Factory Emergency Restoration
+# 8. Install DLaunch (Auto-Adjusting Minimalist TV Launcher)
+python3 tools/unbloat.py --dlaunch -y
+
+# 9. Full Factory Emergency Restoration
 python3 tools/unbloat.py --restore -y
 ```
 

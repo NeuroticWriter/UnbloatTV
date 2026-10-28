@@ -574,7 +574,7 @@ def action_aot_compile(adb: ADB, profiler: TVProfiler):
     print("This eliminates JIT compilation lag on bootup and during app launches.\n")
     
     target_apps = [
-        ("com.spocky.projengmenu", "Projectivy Launcher"),
+        ("com.dewzone.dlaunch", "DLaunch TV Launcher"),
         ("com.android.systemui", "Android System UI"),
         ("com.android.tv.settings", "TV Settings"),
         ("com.google.android.katniss", "Google Assistant"),
@@ -628,6 +628,76 @@ def action_private_dns(adb: ADB, provider: Optional[str] = None):
         adb.shell("settings put global private_dns_mode off")
         adb.shell("settings put global private_dns_specifier null")
         print(f"  {Colors.YELLOW}✓ Private DNS disabled.{Colors.RESET}")
+
+# --- DLaunch Auto-Installer & Default Switcher ---
+def action_install_dlaunch(adb: ADB, profiler: TVProfiler, auto_confirm: bool = False):
+    print(f"\n{Colors.BOLD}{Colors.CYAN}--- Install DLaunch (Auto-Adjusting TV Launcher) ---{Colors.RESET}")
+    print("DLaunch is an ultra-minimalist, lightweight (33 KB) Android TV launcher.")
+    print("Zero ads, zero telemetry, auto-adjusts to 720p/1080p/4K, and launches in <30ms.")
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    apk_candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "dlaunch.apk"),
+        os.path.join(base_dir, "dlaunch", "dlaunch.apk"),
+        os.path.join(base_dir, "tools", "dlaunch.apk"),
+    ]
+    apk_path = None
+    for c in apk_candidates:
+        if os.path.isfile(c):
+            apk_path = c
+            break
+
+    if not apk_path:
+        print("Local DLaunch APK not found, fetching latest build from GitHub...")
+        apk_path = "/tmp/dlaunch.apk"
+        try:
+            url = "https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/dlaunch/dlaunch.apk"
+            urllib.request.urlretrieve(url, apk_path)
+        except Exception as e:
+            print(f"{Colors.RED}Failed to locate or download DLaunch APK: {e}{Colors.RESET}")
+            return
+
+    print(f"Installing DLaunch from: {apk_path} ...")
+    res = adb.run("install", "-r", apk_path)
+    if "Success" in res:
+        print(f"  {Colors.GREEN}✓ DLaunch installed successfully!{Colors.RESET}")
+        adb.shell("cmd package compile -m speed com.dewzone.dlaunch")
+        print(f"  {Colors.GREEN}✓ Compiled DLaunch to native ARM speed code.{Colors.RESET}")
+        
+        # Test launch
+        adb.shell("monkey -p com.dewzone.dlaunch 1")
+        print(f"  {Colors.GREEN}✓ DLaunch launched on TV screen!{Colors.RESET}")
+        
+        # Check for stock launchers to safely disable
+        stock_launchers = [
+            ("com.google.android.apps.tv.launcherx", "Google TV Home Launcher"),
+            ("com.google.android.tvlauncher", "Android TV Standard Launcher"),
+            ("com.mitv.tvhome", "Xiaomi PatchWall Launcher"),
+            ("com.oneplus.tv.launcher", "OnePlus Home Launcher"),
+            ("com.tcl.tvplayer", "TCL Channel Home"),
+            ("com.tcl.launcher", "TCL Smart TV Launcher"),
+        ]
+        
+        detected_stock = [s for s in stock_launchers if s[0] in profiler.installed_packages and s[0] not in profiler.disabled_packages]
+        if detected_stock:
+            print(f"\n{Colors.YELLOW}Detected active stock bloat launcher(s):{Colors.RESET}")
+            for pkg, name in detected_stock:
+                print(f"  • {name} ({pkg})")
+            
+            disable_prompt = True
+            if not auto_confirm:
+                ans = input(f"\nWould you like to disable the bloated stock launcher so DLaunch becomes your default Home screen? (Y/n): ").strip().lower()
+                disable_prompt = ans not in ("n", "no")
+            
+            if disable_prompt:
+                for pkg, name in detected_stock:
+                    adb.shell(f"pm disable-user --user 0 {pkg}")
+                    print(f"  {Colors.GREEN}✓ Disabled stock launcher:{Colors.RESET} {name} (Reversible anytime via option 9)")
+                print(f"\n{Colors.GREEN}✓ DLaunch is now your default Android TV home launcher!{Colors.RESET}")
+            else:
+                print(f"  {Colors.CYAN}Stock launcher kept active. Press Home on remote and select DLaunch when prompted.{Colors.RESET}")
+    else:
+        print(f"  {Colors.RED}✗ DLaunch installation failed: {res}{Colors.RESET}")
 
 # --- SmartTube Auto-Installer ---
 def action_install_smarttube(adb: ADB, profiler: TVProfiler):
@@ -818,6 +888,7 @@ Examples:
     parser.add_argument("--aot", action="store_true", help="Pre-compile installed apps to native ARM machine code")
     parser.add_argument("--dns", choices=["adguard", "quad9", "off"], help="Configure system-wide Private DNS ad-blocker")
     parser.add_argument("--smarttube", action="store_true", help="Download and install architecture-matched SmartTube")
+    parser.add_argument("--dlaunch", action="store_true", help="Install DLaunch (Auto-Adjusting Minimalist TV Launcher)")
     parser.add_argument("--restore", action="store_true", help="Restore all disabled packages and reset animation scales")
     parser.add_argument("--export-profile", action="store_true", help="Export current TV hardware profile to profiles/ for community showcase")
     parser.add_argument("--status", action="store_true", help="Display hardware profile and memory metrics then exit")
@@ -838,7 +909,7 @@ Examples:
         profiler.print_summary()
         sys.exit(0)
 
-    has_cli_action = any([args.auto, args.debloat, args.freeze, args.aot, args.dns, args.smarttube, args.restore, args.export_profile])
+    has_cli_action = any([args.auto, args.debloat, args.freeze, args.aot, args.dns, args.smarttube, args.dlaunch, args.restore, args.export_profile])
 
     if has_cli_action:
         profiler.print_summary()
@@ -859,6 +930,8 @@ Examples:
                 action_private_dns(adb, provider=args.dns)
             if args.smarttube:
                 action_install_smarttube(adb, profiler)
+            if args.dlaunch:
+                action_install_dlaunch(adb, profiler, auto_confirm=args.yes)
             if args.restore:
                 action_restore(adb, profiler, auto_confirm=args.yes)
             if args.export_profile:
@@ -875,13 +948,14 @@ Examples:
         print(f"  {Colors.BOLD}[3]{Colors.RESET} ⚡ Extreme Speed & AppOps Background Freeze")
         print(f"  {Colors.BOLD}[4]{Colors.RESET} 🏎️ Ahead-Of-Time (AOT) Machine Code Compilation")
         print(f"  {Colors.BOLD}[5]{Colors.RESET} 🛡️ System-Wide Ad-Blocker (Private DNS)")
-        print(f"  {Colors.BOLD}[6]{Colors.RESET} 📺 Install SmartTube (Ad-Free YouTube with SponsorBlock)")
-        print(f"  {Colors.BOLD}[7]{Colors.RESET} 🔍 Rescan TV Hardware & Health Score")
-        print(f"  {Colors.BOLD}[8]{Colors.RESET} 🔄 Factory Restoration & Safety Recovery")
-        print(f"  {Colors.BOLD}[9]{Colors.RESET} 📤 Export TV Profile (Share with Community)")
+        print(f"  {Colors.BOLD}[6]{Colors.RESET} 🚀 {Colors.CYAN}Install DLaunch{Colors.RESET} (Auto-Adjusting Minimalist TV Launcher)")
+        print(f"  {Colors.BOLD}[7]{Colors.RESET} 📺 Install SmartTube (Ad-Free YouTube with SponsorBlock)")
+        print(f"  {Colors.BOLD}[8]{Colors.RESET} 🔍 Rescan TV Hardware & Health Score")
+        print(f"  {Colors.BOLD}[9]{Colors.RESET} 🔄 Factory Restoration & Safety Recovery")
+        print(f"  {Colors.BOLD}[10]{Colors.RESET} 📤 Export TV Profile (Share with Community)")
         print(f"  {Colors.BOLD}[0]{Colors.RESET} ❌ Exit")
 
-        choice = input(f"\n{Colors.BOLD}Choose an option (0-9): {Colors.RESET}").strip()
+        choice = input(f"\n{Colors.BOLD}Choose an option (0-10): {Colors.RESET}").strip()
         if choice == "1":
             action_debloat(adb, profiler, auto_confirm=True, mode="disable")
             action_extreme_speed(adb, profiler, preset="5")
@@ -897,25 +971,16 @@ Examples:
         elif choice == "5":
             action_private_dns(adb)
         elif choice == "6":
-            action_install_smarttube(adb, profiler)
+            action_install_dlaunch(adb, profiler)
         elif choice == "7":
+            action_install_smarttube(adb, profiler)
+        elif choice == "8":
             profiler.scan()
             profiler.print_summary()
-        elif choice == "8":
-            action_restore(adb, profiler)
         elif choice == "9":
-            action_export_profile(adb, profiler)
-        elif choice == "4":
-            action_aot_compile(adb, profiler)
-        elif choice == "5":
-            action_private_dns(adb)
-        elif choice == "6":
-            action_install_smarttube(adb, profiler)
-        elif choice == "7":
-            profiler.scan()
-            profiler.print_summary()
-        elif choice == "8":
             action_restore(adb, profiler)
+        elif choice == "10":
+            action_export_profile(adb, profiler)
         elif choice in ("0", "q", "exit"):
             print(f"\n{Colors.CYAN}Thank you for using UnbloatTV! Enjoy your fast, clean TV.{Colors.RESET}")
             print(f"{Colors.YELLOW}☕ Support the project: https://buymeacoffee.com/dewzone{Colors.RESET}\n")

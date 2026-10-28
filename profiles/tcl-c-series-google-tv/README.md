@@ -8,3 +8,4 @@
 - Removes aggressive TCL background commercial tools (`com.tcl.commercial.uninstallation`).
 - Disables FFALCON sponsored row ad engine (`com.ffalcon.service`).
 - Keeps TCL picture calibration modes and display controls intact.
+
