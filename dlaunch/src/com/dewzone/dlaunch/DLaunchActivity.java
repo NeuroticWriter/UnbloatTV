@@ -18,6 +18,8 @@ import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -27,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +72,15 @@ public class DLaunchActivity extends Activity {
     private TextView dateView;
     private TextView emptyView;
 
+    // Calm Ambient Screensaver
+    private View screensaverLayout;
+    private TextClock screensaverClock;
+    private TextView screensaverDate;
+    private TextView screensaverSubtitle;
+    private final Handler screensaverHandler = new Handler(Looper.getMainLooper());
+    private boolean isScreensaverActive = false;
+    private final Runnable screensaverRunnable = new ScreensaverTimerRunnable(this);
+
     private int calculatedColumns = 5;
 
     private static final AppComparator APP_COMPARATOR = new AppComparator();
@@ -94,6 +106,22 @@ public class DLaunchActivity extends Activity {
         updateDate();
         applyThemeAndAccent();
         loadAndDisplayApps();
+        resetScreensaverTimer();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        screensaverHandler.removeCallbacks(screensaverRunnable);
+        if (isScreensaverActive) {
+            hideScreensaver();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        screensaverHandler.removeCallbacks(screensaverRunnable);
     }
 
     private void initViews() {
@@ -111,6 +139,12 @@ public class DLaunchActivity extends Activity {
         mainScroll = (ScrollView) findViewById(R.id.main_scroll);
         dateView = (TextView) findViewById(R.id.date_view);
         emptyView = (TextView) findViewById(R.id.tv_empty);
+
+        // Screensaver views
+        screensaverLayout = findViewById(R.id.screensaver_layout);
+        screensaverClock = (TextClock) findViewById(R.id.screensaver_clock);
+        screensaverDate = (TextView) findViewById(R.id.screensaver_date);
+        screensaverSubtitle = (TextView) findViewById(R.id.screensaver_subtitle);
     }
 
     private void setupHeader() {
@@ -122,6 +156,7 @@ public class DLaunchActivity extends Activity {
             if (btnSettings != null) {
                 btnInputs.setNextFocusRightId(btnSettings.getId());
             }
+            btnInputs.setNextFocusDownId(R.id.favorites_scroll);
         }
 
         if (btnSettings != null) {
@@ -130,6 +165,7 @@ public class DLaunchActivity extends Activity {
             if (btnInputs != null) {
                 btnSettings.setNextFocusLeftId(btnInputs.getId());
             }
+            btnSettings.setNextFocusDownId(R.id.favorites_scroll);
         }
 
         // Clicking brand pill also opens DLaunch settings
@@ -211,22 +247,24 @@ public class DLaunchActivity extends Activity {
         if (wallpaperView != null) wallpaperView.setVisibility(View.GONE);
         if (wallpaperDimOverlay != null) wallpaperDimOverlay.setVisibility(View.GONE);
         if (rootLayout != null) {
-            if ("obsidian".equalsIgnoreCase(theme)) {
+            if ("ocean".equalsIgnoreCase(theme) || "liquid_ocean".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_ocean);
+            } else if ("liquid_nebula".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_nebula);
+            } else if ("liquid_aurora".equalsIgnoreCase(theme) || "aurora".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_aurora);
+            } else if ("liquid_sunset".equalsIgnoreCase(theme) || "sunset".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_sunset);
+            } else if ("obsidian".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_obsidian);
-            } else if ("aurora".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_aurora);
-            } else if ("cyber".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber);
-            } else if ("neon".equalsIgnoreCase(theme)) {
+            } else if ("cyber".equalsIgnoreCase(theme) || "neon".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber_neon);
             } else if ("violet".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_cosmic_violet);
-            } else if ("sunset".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_sunset);
             } else if ("oled".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_oled);
             } else {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_nebula);
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_ocean);
             }
         }
     }
@@ -234,19 +272,23 @@ public class DLaunchActivity extends Activity {
     public static Drawable createPillSelector(float density, int accentColor) {
         int radiusPx = (int) (24 * density);
         int strokeNormalPx = (int) (1 * density);
-        int strokeFocusedPx = (int) (2 * density);
+        int strokeFocusedPx = (int) (2.5f * density);
 
-        GradientDrawable normal = new GradientDrawable();
+        GradientDrawable normal = new GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{Color.parseColor("#331E2D44"), Color.parseColor("#44101A29")}
+        );
         normal.setShape(GradientDrawable.RECTANGLE);
         normal.setCornerRadius(radiusPx);
-        normal.setColor(Color.parseColor("#101A29"));
-        normal.setStroke(strokeNormalPx, Color.parseColor("#233346"));
+        normal.setStroke(strokeNormalPx, Color.parseColor("#2EFFFFFF"));
 
-        GradientDrawable focused = new GradientDrawable();
+        GradientDrawable focused = new GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{Color.parseColor("#66203D66"), Color.parseColor("#80152640")}
+        );
         focused.setShape(GradientDrawable.RECTANGLE);
         focused.setCornerRadius(radiusPx);
-        focused.setColor(accentColor);
-        focused.setStroke(strokeFocusedPx, Color.WHITE);
+        focused.setStroke(strokeFocusedPx, accentColor);
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_focused}, focused);
@@ -514,13 +556,13 @@ public class DLaunchActivity extends Activity {
         LinearLayout.LayoutParams params;
         int radiusDp;
         if (isFavoriteShelf) {
-            int tileWidth = (int) (112 * density);
-            params = new LinearLayout.LayoutParams(tileWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-            int marginHoriz = (int) (5 * density);
-            int marginVert = (int) (4 * density);
+            int squircleSize = (int) (76 * density);
+            params = new LinearLayout.LayoutParams(squircleSize, squircleSize);
+            int marginHoriz = (int) (6 * density);
+            int marginVert = (int) (2 * density);
             params.setMargins(marginHoriz, marginVert, marginHoriz, marginVert);
-            tile.setPadding((int) (10 * density), (int) (8 * density), (int) (10 * density), (int) (8 * density));
-            radiusDp = 22; // Dock squircle
+            tile.setPadding((int) (10 * density), (int) (10 * density), (int) (10 * density), (int) (10 * density));
+            radiusDp = 18; // Pure squircle matching reference design
         } else {
             params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
             int margin = (int) (8 * density);
@@ -539,18 +581,14 @@ public class DLaunchActivity extends Activity {
 
         if (app.getIcon() != null) {
             iconView.setImageDrawable(app.getIcon());
-            int w = app.getIcon().getIntrinsicWidth();
-            int h = app.getIcon().getIntrinsicHeight();
             if (isFavoriteShelf) {
-                if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
-                    iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-                    iconView.getLayoutParams().height = (int) (48 * density);
-                } else {
-                    int size = (int) (56 * density);
-                    iconView.getLayoutParams().width = size;
-                    iconView.getLayoutParams().height = size;
-                }
+                int iconSize = (int) (48 * density);
+                iconView.getLayoutParams().width = iconSize;
+                iconView.getLayoutParams().height = iconSize;
+                iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             } else {
+                int w = app.getIcon().getIntrinsicWidth();
+                int h = app.getIcon().getIntrinsicHeight();
                 if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
                     // Wide Leanback 16:9 banner
                     iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -564,22 +602,24 @@ public class DLaunchActivity extends Activity {
             }
         }
 
-        // App Labels toggle (Show / Hide)
-        if (prefs.isShowLabels() && !isFavoriteShelf) {
-            labelView.setVisibility(View.VISIBLE);
-            labelView.setText(app.getLabel());
-        } else if (prefs.isShowLabels() && isFavoriteShelf) {
-            labelView.setVisibility(View.VISIBLE);
-            labelView.setText(app.getLabel());
-            labelView.setTextSize(12f);
-        } else {
+        // App Labels toggle (Squircle dock capsule NEVER shows text labels, matching reference)
+        if (isFavoriteShelf) {
             labelView.setVisibility(View.GONE);
-        }
-
-        if (app.isFavorite() && !isFavoriteShelf) {
-            starBadge.setVisibility(View.VISIBLE);
-        } else {
             starBadge.setVisibility(View.GONE);
+            tile.setNextFocusUpId(R.id.btn_settings);
+        } else {
+            if (prefs.isShowLabels()) {
+                labelView.setVisibility(View.VISIBLE);
+                labelView.setText(app.getLabel());
+            } else {
+                labelView.setVisibility(View.GONE);
+            }
+
+            if (app.isFavorite()) {
+                starBadge.setVisibility(View.VISIBLE);
+            } else {
+                starBadge.setVisibility(View.GONE);
+            }
         }
 
         // TV Remote Focus Animation, Marquee & Strict Horizontal Navigation
@@ -831,6 +871,77 @@ public class DLaunchActivity extends Activity {
         }
     }
 
+    private long screensaverShownTime = 0;
+
+    public void resetScreensaverTimer() {
+        screensaverHandler.removeCallbacks(screensaverRunnable);
+        int timeoutMinutes = prefs.getScreensaverTimeout();
+        if (timeoutMinutes > 0 && !isScreensaverActive) {
+            screensaverHandler.postDelayed(screensaverRunnable, timeoutMinutes * 60 * 1000L);
+        }
+    }
+
+    public void showScreensaver() {
+        if (isScreensaverActive || isFinishing()) return;
+        isScreensaverActive = true;
+        screensaverShownTime = android.os.SystemClock.uptimeMillis();
+
+        if (screensaverDate != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM d", Locale.getDefault());
+            screensaverDate.setText(sdf.format(new Date()));
+        }
+        if (screensaverSubtitle != null) {
+            screensaverSubtitle.setTextColor(prefs.getAccentColor());
+        }
+
+        View header = findViewById(R.id.header_bar);
+        if (header != null) {
+            header.animate().alpha(0f).setDuration(450).start();
+        }
+        if (mainScroll != null) {
+            mainScroll.animate().alpha(0f).setDuration(450).start();
+        }
+        if (screensaverLayout != null) {
+            screensaverLayout.setVisibility(View.VISIBLE);
+            screensaverLayout.animate().alpha(1f).setDuration(450).start();
+        }
+    }
+
+    public void hideScreensaver() {
+        if (!isScreensaverActive) return;
+        isScreensaverActive = false;
+
+        View header = findViewById(R.id.header_bar);
+        if (header != null) {
+            header.animate().alpha(1f).setDuration(300).start();
+        }
+        if (mainScroll != null) {
+            mainScroll.animate().alpha(1f).setDuration(300).start();
+        }
+        if (screensaverLayout != null) {
+            screensaverLayout.animate().alpha(0f).setDuration(300).withEndAction(new ScreensaverHideRunnable(screensaverLayout)).start();
+        }
+        resetScreensaverTimer();
+    }
+
+    public void previewScreensaver() {
+        showScreensaver();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        resetScreensaverTimer();
+        if (isScreensaverActive) {
+            if (android.os.SystemClock.uptimeMillis() - screensaverShownTime > 500) {
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    hideScreensaver();
+                }
+            }
+            return true; // Consume event to prevent accidental click when waking from screensaver
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -1017,6 +1128,28 @@ public class DLaunchActivity extends Activity {
                     v.setElevation(0f);
                 }
             }
+        }
+    }
+
+    private static class ScreensaverTimerRunnable implements Runnable {
+        private final DLaunchActivity activity;
+        ScreensaverTimerRunnable(DLaunchActivity activity) {
+            this.activity = activity;
+        }
+        @Override
+        public void run() {
+            activity.showScreensaver();
+        }
+    }
+
+    private static class ScreensaverHideRunnable implements Runnable {
+        private final View layout;
+        ScreensaverHideRunnable(View layout) {
+            this.layout = layout;
+        }
+        @Override
+        public void run() {
+            layout.setVisibility(View.GONE);
         }
     }
 }

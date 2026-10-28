@@ -38,6 +38,8 @@
         android:id="@+id/header_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:layout_marginBottom="24dp">
 
         <!-- Time & Date -->
@@ -95,23 +97,32 @@
 
         <!-- Quick Action Buttons (Inputs, Settings) -->
         <LinearLayout
+            android:id="@+id/header_buttons_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingStart="8dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="6dp">
 
             <!-- TV Inputs Switcher -->
             <LinearLayout
                 android:id="@+id/btn_inputs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
+                android:layout_margin="4dp"
                 android:background="@drawable/bg_pill_selector"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:orientation="horizontal"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:paddingStart="16dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
@@ -137,11 +148,14 @@
                 android:id="@+id/btn_settings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="4dp"
                 android:background="@drawable/bg_pill_selector"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center"
                 android:orientation="horizontal"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:paddingStart="16dp"
                 android:paddingTop="8dp"
                 android:paddingEnd="16dp"
@@ -268,5 +282,75 @@
     </ScrollView>
 
 </LinearLayout>
+
+    <!-- CALM AMBIENT SCREENSAVER OVERLAY -->
+    <RelativeLayout
+        android:id="@+id/screensaver_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#4D000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:alpha="0">
+
+        <!-- Centered Tranquil Ambient Time, Date & Breath -->
+        <LinearLayout
+            android:id="@+id/screensaver_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextClock
+                android:id="@+id/screensaver_clock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:format12Hour="h:mm a"
+                android:format24Hour="HH:mm"
+                android:textColor="@color/text_primary"
+                android:textSize="76sp"
+                android:fontFamily="sans-serif-thin"
+                android:shadowColor="#8000E5FF"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="28" />
+
+            <TextView
+                android:id="@+id/screensaver_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="20sp"
+                android:letterSpacing="0.05" />
+
+            <TextView
+                android:id="@+id/screensaver_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Calm Ambient Mode"
+                android:textColor="@color/text_accent"
+                android:textSize="13sp"
+                android:letterSpacing="0.1" />
+        </LinearLayout>
+
+        <!-- Subtle Wake Hint at Bottom -->
+        <TextView
+            android:id="@+id/screensaver_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="36dp"
+            android:text="Press any remote button to wake"
+            android:textColor="#5594A3B8"
+            android:textSize="12sp"
+            android:letterSpacing="0.08" />
+
+    </RelativeLayout>
+
 </FrameLayout>
 

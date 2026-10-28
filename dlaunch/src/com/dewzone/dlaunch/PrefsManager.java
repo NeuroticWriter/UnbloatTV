@@ -22,6 +22,7 @@ public class PrefsManager {
     private static final String KEY_WALLPAPER_MODE = "key_wallpaper_mode";
     private static final String KEY_WALLPAPER_DIM = "key_wallpaper_dim";
     private static final String KEY_CARD_TRANSPARENCY = "key_card_transparency";
+    private static final String KEY_SCREENSAVER_TIMEOUT = "key_screensaver_timeout";
 
     // Default accent colors
     public static final int COLOR_CYAN = Color.parseColor("#00E5FF");
@@ -190,5 +191,14 @@ public class PrefsManager {
 
     public void setCardTransparency(String style) {
         prefs.edit().putString(KEY_CARD_TRANSPARENCY, style).apply();
+    }
+
+    // --- Screensaver Timeout (in minutes, 0 = disabled, 1, 2, 3, 5, 10) ---
+    public int getScreensaverTimeout() {
+        return prefs.getInt(KEY_SCREENSAVER_TIMEOUT, 3);
+    }
+
+    public void setScreensaverTimeout(int minutes) {
+        prefs.edit().putInt(KEY_SCREENSAVER_TIMEOUT, minutes).apply();
     }
 }
