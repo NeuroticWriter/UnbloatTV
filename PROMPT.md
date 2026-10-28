@@ -25,13 +25,13 @@ Run the following command to discover or connect to the TV and read its hardware
 
 ```bash
 # Check status and read hardware profile + Health Score
-python3 unbloat.py --status
+python3 tools/unbloat.py --status
 ```
 
 *If the TV's IP address is known (e.g., `192.168.1.50`):*
 ```bash
 adb connect 192.168.1.50:5555
-python3 unbloat.py -d 192.168.1.50:5555 --status
+python3 tools/unbloat.py -d 192.168.1.50:5555 --status
 ```
 
 #### Hardware Analysis Checklist:
@@ -68,34 +68,34 @@ Identify the manufacturer from `ro.product.manufacturer` or `ro.product.brand` a
 To run the complete automated suite non-interactively:
 
 ```bash
-python3 unbloat.py --auto -y
+python3 tools/unbloat.py --auto -y
 ```
 
 #### Choose Between Debloat Modes:
 - **Mode 1: Safe Disable (Default & Recommended)**
   ```bash
-  python3 unbloat.py --debloat --mode disable -y
+  python3 tools/unbloat.py --debloat --mode disable -y
   ```
   *Halts background execution, frees 100% CPU/RAM, keeps APK in `/system` partition. Reversible in 1 second via `pm enable`.*
 - **Mode 2: Deep User Uninstall**
   ```bash
-  python3 unbloat.py --debloat --mode uninstall -y
+  python3 tools/unbloat.py --debloat --mode uninstall -y
   ```
   *Completely removes package registration and app data for User 0 (frees internal storage). Reversible via `cmd package install-existing`.*
 
 #### Additional Granular Optimizations:
 ```bash
 # 1. Freeze streaming apps in background & set 0.0x instant animations + GPU 2D boost
-python3 unbloat.py --freeze
+python3 tools/unbloat.py --freeze
 
 # 2. Compile high-priority apps to native ARM machine code
-python3 unbloat.py --aot
+python3 tools/unbloat.py --aot
 
 # 3. Enable zero-RAM AdGuard Private DNS
-python3 unbloat.py --dns adguard
+python3 tools/unbloat.py --dns adguard
 
 # 4. Download and install architecture-matched SmartTube APK
-python3 unbloat.py --smarttube
+python3 tools/unbloat.py --smarttube
 ```
 
 ---
@@ -126,7 +126,7 @@ For the ultimate experience with dynamic 4K backdrops and "Watch Next" movie car
 Run memory audit and confirm improvements:
 ```bash
 adb shell dumpsys meminfo
-python3 unbloat.py --status
+python3 tools/unbloat.py --status
 ```
 Verify that:
 - Available RAM has increased (+50 MB to +150 MB).
@@ -142,6 +142,6 @@ Verify that:
 
 If the user ever reports an issue or wants factory stock behavior:
 ```bash
-python3 unbloat.py --restore -y
+python3 tools/unbloat.py --restore -y
 ```
 This re-enables all disabled packages, re-registers any uninstalled user packages, and resets animation scales to 1.0x with zero data loss.

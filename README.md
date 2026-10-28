@@ -133,7 +133,7 @@ UnbloatTV puts you in complete control. Whenever you debloat, you can choose bet
 | :--- | :--- |
 | **macOS & Linux (1-Liner)** | `curl -sSL https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.sh \| bash` |
 | **Windows** | Double-click `unbloat.bat` or run `.\unbloat.bat` in CMD / PowerShell |
-| **Any Platform via Python** | `git clone https://github.com/NeuroticWriter/UnbloatTV.git`<br>`cd UnbloatTV && python3 unbloat.py` |
+| **Any Platform via Shell** | `git clone https://github.com/NeuroticWriter/UnbloatTV.git`<br>`cd UnbloatTV && ./unbloat.sh` |
 
 *When prompted on your TV screen, check **"Always allow from this computer"** and select **OK**.*
 
@@ -145,22 +145,23 @@ UnbloatTV can be used interactively or in automated CI/CD and AI scripts:
 
 ```bash
 # Check TV hardware specifications and Health Score
-python3 unbloat.py --status
+./unbloat.sh --status
+# or: python3 tools/unbloat.py --status
 
 # Full 1-Click Safe Optimization (Debloat + Freeze + AOT + AdGuard DNS)
-python3 unbloat.py --auto -y
+./unbloat.sh --auto -y
 
 # Debloat specific category with safe disable mode
-python3 unbloat.py --debloat --mode disable --category telemetry -y
+./unbloat.sh --debloat --mode disable --category telemetry -y
 
 # Deep user uninstall for OEM ads and duplicate stores
-python3 unbloat.py --debloat --mode uninstall --category ads -y
+./unbloat.sh --debloat --mode uninstall --category ads -y
 
 # Connect directly to a specific TV IP address
-python3 unbloat.py -d 192.168.1.50:5555 --auto -y
+./unbloat.sh -d 192.168.1.50:5555 --auto -y
 
 # 1-Click Factory Restoration
-python3 unbloat.py --restore -y
+./unbloat.sh --restore -y
 ```
 
 ---

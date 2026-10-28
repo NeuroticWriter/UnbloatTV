@@ -47,12 +47,17 @@ fi
 
 # Locate script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_SCRIPT="$SCRIPT_DIR/unbloat.py"
+PYTHON_SCRIPT="$SCRIPT_DIR/tools/unbloat.py"
 
 if [ ! -f "$PYTHON_SCRIPT" ]; then
-    echo -e "${YELLOW}unbloat.py not found locally. Downloading latest release...${NC}"
-    curl -sSL "https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.py" -o "/tmp/unbloat.py"
-    PYTHON_SCRIPT="/tmp/unbloat.py"
+    if [ -f "$SCRIPT_DIR/unbloat.py" ]; then
+        PYTHON_SCRIPT="$SCRIPT_DIR/unbloat.py"
+    else
+        echo -e "${YELLOW}unbloat.py not found locally. Downloading latest release...${NC}"
+        mkdir -p "/tmp/unbloattv_tools"
+        curl -sSL "https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/tools/unbloat.py" -o "/tmp/unbloattv_tools/unbloat.py"
+        PYTHON_SCRIPT="/tmp/unbloattv_tools/unbloat.py"
+    fi
 fi
 
 # Execute Python CLI forwarding all arguments

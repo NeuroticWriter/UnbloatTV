@@ -32,7 +32,11 @@ if %errorlevel% neq 0 (
 )
 
 :: Execute unbloat.py passing all arguments
-python "%~dp0unbloat.py" %*
+if exist "%~dp0tools\unbloat.py" (
+    python "%~dp0tools\unbloat.py" %*
+) else (
+    python "%~dp0unbloat.py" %*
+)
 if %errorlevel% neq 0 (
     pause
 )
