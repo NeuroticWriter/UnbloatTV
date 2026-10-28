@@ -849,6 +849,7 @@ Examples:
             action_restore(adb, profiler)
         elif choice in ("0", "q", "exit"):
             print(f"\n{Colors.CYAN}Thank you for using UnbloatTV! Enjoy your fast, clean TV.{Colors.RESET}")
+            print(f"{Colors.YELLOW}☕ Support the project: https://buymeacoffee.com/dewzone{Colors.RESET}\n")
             break
         else:
             print(f"{Colors.RED}Invalid option. Please try again.{Colors.RESET}")

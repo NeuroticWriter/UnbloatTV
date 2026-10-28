@@ -9,6 +9,7 @@
 [![Windows Compatible](https://img.shields.io/badge/Windows-unbloat.bat-0078D6.svg)]()
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-brightgreen.svg)]()
 [![Reversible](https://img.shields.io/badge/Safety-100%25%20Reversible-success.svg)]()
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/dewzone)
 
 **The Intelligent, Hardware-Aware Optimizer & Debloater for Android TV & Google TV.**  
 *Turn laggy, stuttering smart TVs into fluid, lightning-fast streaming machines in minutes.*
@@ -242,6 +243,22 @@ UnbloatTV is engineered from the ground up for maximum safety:
 - **Unbypassable System Whitelist:** Critical system packages (System UI, Settings, Package Installer, Dolby Audio, Bluetooth, Remote pairing services, and Mediatek panel backlight drivers) are hardcoded in `PROTECTED_PACKAGES` and can never be disabled or uninstalled.
 - **Automated Safety Snapshots:** A JSON manifest of your installed and disabled package states is saved to `./backups/` before any changes are written.
 - **100% Reversible:** Running `python3 unbloat.py --restore` instantly re-enables all packages or re-registers uninstalled packages via `cmd package install-existing`.
+
+---
+
+## ☕ Support & Donations
+
+UnbloatTV is 100% free, open-source, and independently maintained. If it sped up your TV, gave you ad-free streaming, or saved you from buying expensive streaming hardware, consider supporting the project with a coffee! Every donation helps keep the project active and up to date.
+
+<div align="center">
+
+<a href="https://buymeacoffee.com/dewzone" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="52" width="200">
+</a>
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/dewzone)
+
+</div>
 
 ---
 
