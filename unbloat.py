@@ -14,9 +14,10 @@ import urllib.request
 import re
 import time
 import argparse
-from typing import List, Dict, Tuple, Optional
+from datetime import datetime
+from typing import List, Dict, Tuple, Optional, Set
 
-# --- ANSI Terminal Colors ---
+# --- ANSI Terminal Colors & Styling ---
 class Colors:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -41,8 +42,8 @@ def print_banner():
 """
     print(banner)
 
-# --- Critical System Whitelist (NEVER TOUCH) ---
-PROTECTED_PACKAGES = {
+# --- Critical System Whitelist (NEVER TOUCHED UNDER ANY CIRCUMSTANCE) ---
+PROTECTED_PACKAGES: Set[str] = {
     "android",
     "com.android.systemui",
     "com.android.tv.settings",
@@ -64,76 +65,90 @@ PROTECTED_PACKAGES = {
     "com.mediatek.autopair",  # Remote pairing
     "com.google.android.tv.remote.service",  # TV remote service
     "com.google.android.tv.googletvremotepairer",
+    "com.android.devicelockcontroller",  # Android 14 protected device lock
 }
 
-# --- Comprehensive Bloatware Database by Brand & Category ---
-BLOAT_DATABASE = {
-    # 1. Universal Android TV Junk & Background Daemons
-    "com.google.android.syncadapters.calendar": ("Calendar Sync", "Unused TV calendar background sync", "sync"),
-    "com.android.providers.calendar": ("Calendar Provider", "Calendar storage database", "sync"),
-    "com.android.providers.contacts": ("Contacts Storage", "TV address book database", "sync"),
-    "com.android.printspooler": ("Print Spooler", "Printer service on TV", "utility"),
-    "com.google.android.printservice.recommendation": ("Print Recommendation", "Printer discoverer", "utility"),
-    "com.google.android.feedback": ("Crash Telemetry", "Sends error dumps to Google", "telemetry"),
-    "com.android.tv.feedbackconsent": ("Feedback Consent", "Feedback dialog prompt", "telemetry"),
-    "com.google.android.partnersetup": ("Partner Setup", "Injects sponsored promotional partner apps", "ads"),
-    "com.android.adservices.api": ("AdServices SDK", "Android ad tracking & attribution", "ads"),
-    "com.android.ondevicepersonalization.services": ("Ad Personalization", "On-device user profiling for ads", "ads"),
-    "com.android.federatedcompute.services": ("Telemetry Compute", "Background federated data compute", "telemetry"),
-    "com.google.android.play.games": ("Play Games TV", "Gaming sync daemon (rarely used on TV)", "games"),
-    "com.google.android.marvin.talkback": ("TalkBack", "Screen reader for visually impaired", "accessibility"),
-    "com.google.android.tts": ("Text-to-Speech", "Voice synthesizer engine", "accessibility"),
-    "com.android.captiveportallogin": ("Captive Portal Login", "Browser login for hotel/public Wi-Fi", "utility"),
-    "com.android.providers.userdictionary": ("User Dictionary", "Custom keyboard predictive dictionary", "utility"),
-    "com.android.wallpaperbackup": ("Wallpaper Backup", "Cloud wallpaper backup daemon", "backup"),
-    "com.android.sharedstoragebackup": ("Shared Storage Backup", "Cloud storage backup daemon", "backup"),
-    "com.android.companiondevicemanager": ("Companion Device Manager", "Smartwatch/wearable pairing", "utility"),
-    "com.google.android.youtube.tvmusic": ("YouTube Music TV", "Standalone YT Music player on TV", "media"),
-    "com.google.android.apps.tv.dreamx": ("Ambient Screensaver", "Google Photos/art screensaver", "screensaver"),
-    "com.android.dreams.basic": ("Basic Screensaver", "Standard Android screensaver", "screensaver"),
-    "com.cltv.hybrid": ("CloudTV Hybrid", "Broadcast antenna channel aggregator", "live_tv"),
-    "com.google.android.tv.inputplayer": ("Live TV Tuner Player", "Broadcast channel tuner player", "live_tv"),
+# --- Comprehensive Bloatware Database by Category & Safety ---
+# Format: pkg: (Display Name, Description, Category, Safety Level: 'SAFE' | 'CAUTION')
+BLOAT_DATABASE: Dict[str, Tuple[str, str, str, str]] = {
+    # 1. Universal Telemetry, Ads & Background Sync (100% SAFE)
+    "com.google.android.syncadapters.calendar": ("Calendar Sync", "Unused TV calendar background sync", "sync", "SAFE"),
+    "com.android.providers.calendar": ("Calendar Provider", "Calendar storage database", "sync", "SAFE"),
+    "com.android.providers.contacts": ("Contacts Storage", "TV address book database", "sync", "SAFE"),
+    "com.android.printspooler": ("Print Spooler", "Printer service background daemon on TV", "utility", "SAFE"),
+    "com.google.android.printservice.recommendation": ("Print Recommendation", "Printer discoverer", "utility", "SAFE"),
+    "com.google.android.feedback": ("Crash Telemetry", "Sends error dumps to Google servers", "telemetry", "SAFE"),
+    "com.android.tv.feedbackconsent": ("Feedback Consent", "Feedback dialog prompt daemon", "telemetry", "SAFE"),
+    "com.google.android.partnersetup": ("Partner Setup", "Injects sponsored promotional partner apps", "ads", "SAFE"),
+    "com.android.adservices.api": ("AdServices SDK", "Android ad tracking & attribution API", "ads", "SAFE"),
+    "com.android.ondevicepersonalization.services": ("Ad Personalization", "On-device user profiling for ads", "ads", "SAFE"),
+    "com.android.federatedcompute.services": ("Telemetry Compute", "Background federated data compute", "telemetry", "SAFE"),
+    "com.android.captiveportallogin": ("Captive Portal Login", "Browser login for hotel/public Wi-Fi", "utility", "SAFE"),
+    "com.android.providers.userdictionary": ("User Dictionary", "Custom keyboard predictive dictionary", "utility", "SAFE"),
+    "com.android.wallpaperbackup": ("Wallpaper Backup", "Cloud wallpaper backup daemon", "backup", "SAFE"),
+    "com.android.sharedstoragebackup": ("Shared Storage Backup", "Cloud storage backup daemon", "backup", "SAFE"),
+    "com.android.companiondevicemanager": ("Companion Device Manager", "Smartwatch/wearable pairing daemon", "utility", "SAFE"),
+    "com.google.android.play.games": ("Play Games TV", "Gaming sync daemon (rarely used on TV)", "games", "SAFE"),
+    "com.google.android.youtube.tvmusic": ("YouTube Music TV", "Standalone YT Music player on TV", "media", "SAFE"),
+
+    # Optional / Caution (Keep if user relies on accessibility or screen savers)
+    "com.google.android.marvin.talkback": ("TalkBack", "Screen reader for visually impaired users", "accessibility", "CAUTION"),
+    "com.google.android.tts": ("Text-to-Speech", "Voice synthesizer engine", "accessibility", "CAUTION"),
+    "com.google.android.apps.tv.dreamx": ("Ambient Screensaver", "Google Photos / art screensaver", "screensaver", "CAUTION"),
+    "com.android.dreams.basic": ("Basic Screensaver", "Standard Android screensaver", "screensaver", "CAUTION"),
+    "com.cltv.hybrid": ("CloudTV Hybrid", "Broadcast antenna channel aggregator", "live_tv", "CAUTION"),
+    "com.google.android.tv.inputplayer": ("Live TV Tuner Player", "Broadcast channel tuner player", "live_tv", "CAUTION"),
 
     # 2. Croma / Changhong OEM Junk
-    "com.homwee.store": ("Croma App Store", "OEM app store (duplicates Play Store)", "oem_store"),
-    "com.homwee.factory": ("Croma Factory Menu", "Factory testing menu running in background", "oem_diag"),
-    "com.homwee.help": ("Croma User Help", "OEM help manual", "oem_diag"),
-    "com.homwee.upgrade": ("Croma OTA Updater", "OEM firmware polling daemon", "oem_update"),
-    "com.homwee.dmt.upgrade": ("Croma Device Upgrade", "Device telemetry upgrade service", "oem_update"),
-    "com.mediatek.wwtv.setupwizard": ("Mediatek Setup Wizard", "Residual initial setup wizard", "oem_setup"),
-    "com.mediatek.wwtv.tvcenter.plus": ("TV Center Plus", "Unused TV center overlay stub", "oem_diag"),
+    "com.homwee.store": ("Croma App Store", "OEM app store (duplicates Play Store)", "oem_store", "SAFE"),
+    "com.homwee.factory": ("Croma Factory Menu", "Factory testing menu running in background", "oem_diag", "SAFE"),
+    "com.homwee.help": ("Croma User Help", "OEM help manual", "oem_diag", "SAFE"),
+    "com.homwee.upgrade": ("Croma OTA Updater", "OEM firmware polling daemon", "oem_update", "SAFE"),
+    "com.homwee.dmt.upgrade": ("Croma Device Upgrade", "Device telemetry upgrade service", "oem_update", "SAFE"),
+    "com.mediatek.wwtv.setupwizard": ("Mediatek Setup Wizard", "Residual initial setup wizard", "oem_setup", "SAFE"),
+    "com.mediatek.wwtv.tvcenter.plus": ("TV Center Plus", "Unused TV center overlay stub", "oem_diag", "SAFE"),
 
     # 3. Xiaomi / Redmi / Mi TV Junk
-    "com.xiaomi.mitv.upgrade": ("Mi TV Updater", "Xiaomi background updater", "oem_update"),
-    "com.xiaomi.mitv.advertise": ("PatchWall Ads", "Xiaomi home screen ad injection", "ads"),
-    "com.xiaomi.mitv.payment": ("Mi Pay TV", "Xiaomi payment service", "oem_store"),
-    "com.xiaomi.mitv.shop": ("Mi Store TV", "Xiaomi hardware store", "oem_store"),
-    "com.mitv.tvhome": ("PatchWall Launcher", "Heavy Xiaomi PatchWall launcher with ads", "launcher"),
-    "com.xiaomi.devicelist": ("Mi Device List", "Smart home device scanner", "utility"),
-    "com.duokan.videodownloader": ("Duokan Downloader", "Xiaomi media downloader", "utility"),
-    "com.xiaomi.mitv.analytics": ("Mi Analytics", "Xiaomi user behavior tracking", "telemetry"),
+    "com.xiaomi.mitv.upgrade": ("Mi TV Updater", "Xiaomi background updater", "oem_update", "SAFE"),
+    "com.xiaomi.mitv.advertise": ("PatchWall Ads", "Xiaomi home screen ad injection", "ads", "SAFE"),
+    "com.xiaomi.mitv.payment": ("Mi Pay TV", "Xiaomi payment service", "oem_store", "SAFE"),
+    "com.xiaomi.mitv.shop": ("Mi Store TV", "Xiaomi hardware store", "oem_store", "SAFE"),
+    "com.mitv.tvhome": ("PatchWall Launcher", "Heavy Xiaomi PatchWall launcher with ads", "launcher", "CAUTION"),
+    "com.xiaomi.devicelist": ("Mi Device List", "Smart home device scanner", "utility", "SAFE"),
+    "com.duokan.videodownloader": ("Duokan Downloader", "Xiaomi media downloader", "utility", "SAFE"),
+    "com.xiaomi.mitv.analytics": ("Mi Analytics", "Xiaomi user behavior tracking", "telemetry", "SAFE"),
 
     # 4. TCL / FFALCON Junk
-    "com.tcl.commercial.uninstallation": ("TCL Commercial Tool", "TCL commercial adware", "ads"),
-    "com.tcl.useragreement": ("TCL Agreement Daemon", "TCL tracking agreement", "telemetry"),
-    "com.tcl.partnercustomizer": ("TCL Partner Customizer", "TCL promo app injector", "ads"),
-    "com.tcl.appmarket2": ("TCL App Market", "TCL third-party store", "oem_store"),
-    "com.tcl.waterfall.overseas": ("TCL Home Channel", "TCL sponsored content row", "ads"),
-    "com.ffalcon.service": ("FFALCON Service", "TCL/FFalcon ad engine", "ads"),
+    "com.tcl.commercial.uninstallation": ("TCL Commercial Tool", "TCL commercial adware", "ads", "SAFE"),
+    "com.tcl.useragreement": ("TCL Agreement Daemon", "TCL tracking agreement", "telemetry", "SAFE"),
+    "com.tcl.partnercustomizer": ("TCL Partner Customizer", "TCL promo app injector", "ads", "SAFE"),
+    "com.tcl.appmarket2": ("TCL App Market", "TCL third-party store", "oem_store", "SAFE"),
+    "com.tcl.waterfall.overseas": ("TCL Home Channel", "TCL sponsored content row", "ads", "SAFE"),
+    "com.ffalcon.service": ("FFALCON Service", "TCL/FFalcon ad engine", "ads", "SAFE"),
 
     # 5. Sony Bravia Junk
-    "com.sony.dtv.bravialife": ("Sony Bravia Life", "Promotional app", "ads"),
-    "com.sony.dtv.interactivetvutil": ("Interactive TV Utility", "Telemetry daemon", "telemetry"),
-    "com.samba.cast": ("Samba TV ACR", "Automated content recognition & tracking", "telemetry"),
-    "com.sony.dtv.recommendationservice": ("Sony Recommendations", "Sponsored recommendation injector", "ads"),
+    "com.sony.dtv.bravialife": ("Sony Bravia Life", "Promotional app", "ads", "SAFE"),
+    "com.sony.dtv.interactivetvutil": ("Interactive TV Utility", "Telemetry daemon", "telemetry", "SAFE"),
+    "com.samba.cast": ("Samba TV ACR", "Automated content recognition & tracking", "telemetry", "SAFE"),
+    "com.sony.dtv.recommendationservice": ("Sony Recommendations", "Sponsored recommendation injector", "ads", "SAFE"),
 
     # 6. Hisense / Vidaa Junk
-    "com.jamdeo.tv.vod": ("Hisense VOD", "Hisense sponsored video feed", "ads"),
-    "com.hisense.hitv.hicloud.account": ("Hisense Cloud", "Hisense user tracking", "telemetry"),
-    "com.hisense.service": ("Hisense Service", "OEM background daemon", "telemetry"),
+    "com.jamdeo.tv.vod": ("Hisense VOD", "Hisense sponsored video feed", "ads", "SAFE"),
+    "com.hisense.hitv.hicloud.account": ("Hisense Cloud", "Hisense user tracking", "telemetry", "SAFE"),
+    "com.hisense.service": ("Hisense Service", "OEM background daemon", "telemetry", "SAFE"),
+
+    # 7. OnePlus & Realme TV Junk
+    "com.oneplus.tv.launcher": ("OnePlus OxygenPlay", "OnePlus content aggregator launcher", "launcher", "CAUTION"),
+    "com.realme.tv.factory": ("Realme Factory Test", "Background diagnostic service", "oem_diag", "SAFE"),
+    "com.heytap.mcs": ("HeyTap Push Service", "OEM cloud push notification service", "telemetry", "SAFE"),
+
+    # 8. Amazon Fire TV / FireOS Junk
+    "com.amazon.device.messaging": ("Amazon Messaging", "FireOS push messaging service", "telemetry", "SAFE"),
+    "com.amazon.advertising": ("Amazon Advertising", "Fire TV sponsored app ads", "ads", "SAFE"),
+    "com.amazon.kindle.otaupdater": ("Amazon OTA Poller", "Background update poller", "oem_update", "SAFE"),
 }
 
-STREAMING_APPS = [
+STREAMING_APPS: List[Tuple[str, str]] = [
     ("in.startv.hotstar", "Disney+ Hotstar"),
     ("com.amazon.amazonvideo.livingroom", "Amazon Prime Video"),
     ("com.netflix.ninja", "Netflix"),
@@ -179,7 +194,7 @@ class ADB:
             res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=check)
             return res.stdout.strip()
         except subprocess.CalledProcessError as e:
-            return e.stdout.strip()
+            return (e.stdout or e.stderr or "").strip()
 
     def shell(self, command: str) -> str:
         return self.run("shell", command, check=False)
@@ -212,6 +227,8 @@ class TVProfiler:
         self.specs: Dict[str, str] = {}
         self.installed_packages: List[str] = []
         self.disabled_packages: List[str] = []
+        self.health_score: int = 100
+        self.health_reasons: List[str] = []
 
     def scan(self):
         self.specs["manufacturer"] = self.adb.getprop("ro.product.manufacturer") or "Unknown"
@@ -237,8 +254,52 @@ class TVProfiler:
         dis_out = self.adb.shell("pm list packages -d")
         self.disabled_packages = [line.replace("package:", "").strip() for line in dis_out.split("\n") if line.startswith("package:")]
 
+        # Calculate Health Score
+        self._calculate_health_score()
+
+    def _calculate_health_score(self):
+        score = 100
+        reasons = []
+
+        # 1. RAM pressure
+        total_kb = int(re.sub(r'\D', '', self.specs.get('mem_total', '0')) or 0)
+        avail_kb = int(re.sub(r'\D', '', self.specs.get('mem_available', '0')) or 0)
+        if total_kb > 0:
+            free_ratio = avail_kb / total_kb
+            if free_ratio < 0.25:
+                score -= 25
+                reasons.append("Severe RAM exhaustion (<25% free pool)")
+            elif free_ratio < 0.35:
+                score -= 15
+                reasons.append("Moderate RAM strain (<35% free pool)")
+
+        # 2. Bloatware burden
+        active_bloat_count = 0
+        for pkg in BLOAT_DATABASE:
+            if pkg in self.installed_packages and pkg not in self.disabled_packages:
+                active_bloat_count += 1
+        if active_bloat_count > 0:
+            penalty = min(30, active_bloat_count * 2)
+            score -= penalty
+            reasons.append(f"{active_bloat_count} active bloatware/telemetry daemons running")
+
+        # 3. Animation scales
+        anim = self.adb.shell("settings get global window_animation_scale")
+        if anim in ("1.0", "1", "1.5"):
+            score -= 10
+            reasons.append("Stock 1.0x animation scales slowing down UI response")
+
+        # 4. Background Wi-Fi scans
+        wifi_scan = self.adb.shell("settings get global wifi_scan_always_enabled")
+        if wifi_scan == "1":
+            score -= 5
+            reasons.append("Background Wi-Fi scanning enabled (causes micro-stutters)")
+
+        self.health_score = max(20, min(100, score))
+        self.health_reasons = reasons
+
     def print_summary(self):
-        print(f"\n{Colors.BOLD}{Colors.CYAN}--- TV Hardware & System Profile ---{Colors.RESET}")
+        print(f"\n{Colors.CYAN}{Colors.BOLD}┌──────────────────────── TV Hardware & System Profile ────────────────────────┐{Colors.RESET}")
         print(f"  {Colors.BOLD}Device:{Colors.RESET}       {self.specs.get('manufacturer')} {self.specs.get('model')} ({self.specs.get('brand')})")
         print(f"  {Colors.BOLD}Board/SoC:{Colors.RESET}    {self.specs.get('board')} | Architecture: {Colors.YELLOW}{self.specs.get('cpu_abi')}{Colors.RESET}")
         print(f"  {Colors.BOLD}OS Version:{Colors.RESET}   Android TV {self.specs.get('android_ver')} (API {self.specs.get('sdk_int')})")
@@ -254,10 +315,19 @@ class TVProfiler:
         ram_color = Colors.RED if is_low_ram else Colors.GREEN
         print(f"  {Colors.BOLD}RAM Pool:{Colors.RESET}     {ram_color}{ram_tag}{Colors.RESET} (Available: {avail_mb} MB)")
         print(f"  {Colors.BOLD}Packages:{Colors.RESET}     {len(self.installed_packages)} total installed | {Colors.YELLOW}{len(self.disabled_packages)} currently disabled{Colors.RESET}")
+        
+        # Health Score UI
+        score_color = Colors.GREEN if self.health_score >= 80 else (Colors.YELLOW if self.health_score >= 60 else Colors.RED)
+        status_label = "Optimal" if self.health_score >= 80 else ("Sluggish" if self.health_score >= 60 else "High Lag / Degraded")
+        print(f"  {Colors.BOLD}Health Score:{Colors.RESET} {score_color}{self.health_score}/100 ({status_label}){Colors.RESET}")
+        if self.health_reasons:
+            print(f"  {Colors.DIM}Bottlenecks:  {', '.join(self.health_reasons[:2])}{Colors.RESET}")
+
+        print(f"{Colors.CYAN}{Colors.BOLD}└──────────────────────────────────────────────────────────────────────────────┘{Colors.RESET}")
 
         if is_low_ram:
-            print(f"\n  {Colors.YELLOW}{Colors.BOLD}⚠️ Low-RAM Hardware Warning (<1.5 GB RAM detected):{Colors.RESET}")
-            print(f"     Your TV will benefit massively from AppOps process freezing, 0.0x animations,")
+            print(f"\n  {Colors.YELLOW}{Colors.BOLD}⚠️ Low-RAM Hardware Optimization Recommended (<1.5 GB RAM detected):{Colors.RESET}")
+            print(f"     This TV will benefit massively from AppOps process freezing, 0.0x animations,")
             print(f"     AOT speed-compilation, and disabling background stock launcher telemetry.")
 
 def interactive_connect(adb: ADB, target_device: Optional[str] = None) -> bool:
@@ -304,50 +374,169 @@ def interactive_connect(adb: ADB, target_device: Optional[str] = None) -> bool:
     adb.run("connect", ip)
     return interactive_connect(adb)
 
-def action_debloat(adb: ADB, profiler: TVProfiler, auto_confirm: bool = False):
-    print(f"\n{Colors.BOLD}{Colors.CYAN}--- Safe Debloat & Telemetry Removal ---{Colors.RESET}")
-    candidates = []
+# --- Automatic Backup Snapshot System ---
+def create_backup_snapshot(adb: ADB, profiler: TVProfiler, action_label: str) -> str:
+    backup_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backups")
+    os.makedirs(backup_dir, exist_ok=True)
     
+    clean_device = (adb.device or "tv").replace(":", "_").replace(".", "_")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_file = os.path.join(backup_dir, f"unbloat_backup_{clean_device}_{timestamp}.json")
+    
+    data = {
+        "timestamp": datetime.now().isoformat(),
+        "device": adb.device,
+        "specs": profiler.specs,
+        "action": action_label,
+        "installed_packages": profiler.installed_packages,
+        "disabled_packages": profiler.disabled_packages,
+    }
+    
+    with open(backup_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+        
+    print(f"{Colors.DIM}📁 Safety snapshot saved: {backup_file}{Colors.RESET}")
+    return backup_file
+
+# --- Debloat Execution Engine (With Disable vs Uninstall Choice) ---
+def action_debloat(
+    adb: ADB, 
+    profiler: TVProfiler, 
+    auto_confirm: bool = False, 
+    mode: Optional[str] = None,
+    category_filter: Optional[str] = None
+):
+    print(f"\n{Colors.BOLD}{Colors.CYAN}--- Intelligent Debloat & Telemetry Cleaner ---{Colors.RESET}")
+    
+    # 1. Gather Candidate Packages
+    candidates: List[Tuple[str, str, str, str, str]] = []
     for pkg, info in BLOAT_DATABASE.items():
+        name, desc, cat, safety = info
         if pkg in profiler.installed_packages and pkg not in profiler.disabled_packages and pkg not in PROTECTED_PACKAGES:
-            candidates.append((pkg, info[0], info[1], info[2]))
+            if category_filter and category_filter != "all" and cat != category_filter:
+                continue
+            candidates.append((pkg, name, desc, cat, safety))
 
     if not candidates:
         print(f"{Colors.GREEN}✓ Excellent! No common bloatware or telemetry found active on this TV.{Colors.RESET}")
         return
 
-    print(f"Found {len(candidates)} safe bloatware / telemetry packages to disable:\n")
-    for i, (pkg, name, desc, cat) in enumerate(candidates, 1):
-        print(f"  [{i:02d}] {Colors.BOLD}{name}{Colors.RESET} ({Colors.DIM}{pkg}{Colors.RESET})")
-        print(f"       └─ {Colors.YELLOW}{desc}{Colors.RESET}")
+    # 2. Select Operation Mode: Disable vs Uninstall
+    chosen_mode = mode
+    if not chosen_mode:
+        print(f"\n{Colors.BOLD}Select Debloat Operation Mode:{Colors.RESET}")
+        print(f"  {Colors.BOLD}[1] 🛡️ Safe Disable (Recommended - 100% Reversible){Colors.RESET}")
+        print(f"      • Command: {Colors.DIM}pm disable-user --user 0 <package>{Colors.RESET}")
+        print(f"      • Halts execution, frees 100% RAM/CPU, keeps APK in /system.")
+        print(f"      • Can be restored in 1 second via 'pm enable'. Zero brick risk.")
+        print(f"  {Colors.BOLD}[2] 🧹 Deep User Uninstall (Advanced){Colors.RESET}")
+        print(f"      • Command: {Colors.DIM}pm uninstall -k --user 0 <package>{Colors.RESET}")
+        print(f"      • Uninstalls package and data for User 0 (frees storage + RAM).")
+        print(f"      • Preserves factory ROM; restorable via 'cmd package install-existing'.")
+        
+        mode_choice = input(f"\nChoose mode (1/2) [Default: 1]: ").strip()
+        chosen_mode = "uninstall" if mode_choice == "2" else "disable"
 
+    # 3. Package Selection (All vs Category vs Custom)
+    selected_candidates = candidates
     if not auto_confirm:
-        choice = input(f"\nDisable all {len(candidates)} packages safely? [Y/n]: ").strip().lower()
-        if choice not in ("", "y", "yes"):
+        print(f"\nFound {len(candidates)} candidate packages on your TV:\n")
+        for i, (pkg, name, desc, cat, safety) in enumerate(candidates, 1):
+            safety_badge = f"{Colors.GREEN}[SAFE]{Colors.RESET}" if safety == "SAFE" else f"{Colors.YELLOW}[CAUTION]{Colors.RESET}"
+            print(f"  [{i:02d}] {safety_badge} {Colors.BOLD}{name}{Colors.RESET} ({Colors.DIM}{pkg}{Colors.RESET})")
+            print(f"       └─ {Colors.YELLOW}{desc}{Colors.RESET}")
+
+        print(f"\n{Colors.BOLD}Choose selection:{Colors.RESET}")
+        print(f"  {Colors.BOLD}[1] 🚀 All Recommended Bloatware{Colors.RESET} (Process all {len(candidates)} items)")
+        print(f"  {Colors.BOLD}[2] 📂 Select by Category{Colors.RESET} (Telemetry, Ads, OEM Stores, Utilities)")
+        print(f"  {Colors.BOLD}[3] ✍️ Custom Multi-Select{Colors.RESET} (Enter numbers e.g. 1, 3, 5-8)")
+        print(f"  {Colors.BOLD}[0] ❌ Cancel{Colors.RESET}")
+        
+        sel_choice = input("\nSelect an option [Default: 1]: ").strip()
+        if sel_choice == "0":
             print("Debloat cancelled.")
             return
+        elif sel_choice == "2":
+            cats = sorted(list(set(c[3] for c in candidates)))
+            print("\nAvailable Categories:")
+            for idx, c_name in enumerate(cats, 1):
+                print(f"  [{idx}] {c_name.capitalize()}")
+            c_input = input("Select category number: ").strip()
+            if c_input.isdigit() and 1 <= int(c_input) <= len(cats):
+                chosen_cat = cats[int(c_input) - 1]
+                selected_candidates = [c for c in candidates if c[3] == chosen_cat]
+        elif sel_choice == "3":
+            num_input = input("Enter package numbers to process (e.g. 1, 2, 4-6): ").strip()
+            indices = parse_range_input(num_input, len(candidates))
+            if indices:
+                selected_candidates = [candidates[i - 1] for i in indices]
+            else:
+                print(f"{Colors.RED}No valid package numbers selected. Cancelling.{Colors.RESET}")
+                return
 
-    print(f"\n{Colors.CYAN}Disabling packages safely via 'pm disable-user' (100% reversible)...{Colors.RESET}")
-    disabled_count = 0
-    for pkg, name, _, _ in candidates:
-        res = adb.shell(f"pm disable-user --user 0 {pkg}")
-        if "disabled-user" in res or "new state" in res:
-            print(f"  {Colors.GREEN}✓ Disabled:{Colors.RESET} {name}")
-            disabled_count += 1
+    # 4. Create Safety Snapshot
+    create_backup_snapshot(adb, profiler, f"debloat_{chosen_mode}")
+
+    # 5. Execute Action
+    verb = "Disabling" if chosen_mode == "disable" else "Uninstalling (User 0)"
+    print(f"\n{Colors.CYAN}{verb} {len(selected_candidates)} packages safely...{Colors.RESET}")
+    success_count = 0
+    
+    for pkg, name, _, _, _ in selected_candidates:
+        if chosen_mode == "disable":
+            cmd = f"pm disable-user --user 0 {pkg}"
+            res = adb.shell(cmd)
+            if "disabled-user" in res or "new state" in res:
+                print(f"  {Colors.GREEN}✓ Disabled:{Colors.RESET} {name} ({pkg})")
+                success_count += 1
+            elif "SecurityException" in res:
+                print(f"  {Colors.YELLOW}⚡ Protected by OS:{Colors.RESET} {name} (Safely Skipped)")
+            else:
+                print(f"  {Colors.RED}✗ Skipped:{Colors.RESET} {name} ({res})")
         else:
-            print(f"  {Colors.RED}✗ Skipped:{Colors.RESET} {name} ({res})")
-    print(f"\n{Colors.GREEN}✓ Successfully disabled {disabled_count} packages! System structure remains 100% intact.{Colors.RESET}")
+            cmd = f"pm uninstall -k --user 0 {pkg}"
+            res = adb.shell(cmd)
+            if "Success" in res:
+                print(f"  {Colors.GREEN}✓ Uninstalled for User:{Colors.RESET} {name} ({pkg})")
+                success_count += 1
+            elif "SecurityException" in res:
+                print(f"  {Colors.YELLOW}⚡ Protected by OS:{Colors.RESET} {name} (Safely Skipped)")
+            elif "not installed" in res:
+                print(f"  {Colors.DIM}• Already Uninstalled:{Colors.RESET} {name}")
+            else:
+                print(f"  {Colors.RED}✗ Status:{Colors.RESET} {name} ({res})")
+
+    print(f"\n{Colors.GREEN}✓ Successfully processed {success_count} packages! System structure remains 100% intact.{Colors.RESET}")
     profiler.scan()
 
+def parse_range_input(input_str: str, max_val: int) -> List[int]:
+    selected = set()
+    parts = input_str.replace(" ", "").split(",")
+    for part in parts:
+        if "-" in part:
+            sub = part.split("-")
+            if len(sub) == 2 and sub[0].isdigit() and sub[1].isdigit():
+                start, end = int(sub[0]), int(sub[1])
+                for x in range(start, end + 1):
+                    if 1 <= x <= max_val:
+                        selected.add(x)
+        elif part.isdigit():
+            val = int(part)
+            if 1 <= val <= max_val:
+                selected.add(val)
+    return sorted(list(selected))
+
+# --- Extreme Speed & Process Optimization ---
 def action_extreme_speed(adb: ADB, profiler: TVProfiler, preset: str = "5"):
     print(f"\n{Colors.BOLD}{Colors.CYAN}--- Extreme Speed & Process Optimization ---{Colors.RESET}")
     if preset not in ("1", "2", "3", "4", "5"):
-        print("1. Set UI Animations to Instant 0.0x")
-        print("2. Set UI Animations to Liquid 0.5x")
-        print("3. Apply AppOps Background Execution Freeze (stops streaming apps siphoning RAM/CPU on exit)")
-        print("4. Force Full GPU 2D Hardware Rasterization")
-        print("5. Apply ALL of the above (Maximum Speed Preset)")
-        choice = input("Select an option (1-5): ").strip()
+        print("  [1] ⚡ Set UI Animations to Instant 0.0x (Maximum remote responsiveness)")
+        print("  [2] 🌊 Set UI Animations to Liquid 0.5x (Smooth cinematic motion)")
+        print("  [3] ❄️ Apply AppOps Background Execution Freeze (stops streaming apps siphoning RAM/CPU on exit)")
+        print("  [4] 🎮 Force Full GPU 2D Hardware Acceleration")
+        print("  [5] 🚀 Apply ALL of the above (Maximum Speed Preset)")
+        choice = input("\nSelect an option (1-5) [Default: 5]: ").strip()
+        choice = choice or "5"
     else:
         choice = preset
     
@@ -355,13 +544,13 @@ def action_extreme_speed(adb: ADB, profiler: TVProfiler, preset: str = "5"):
         adb.shell("settings put global window_animation_scale 0.0")
         adb.shell("settings put global transition_animation_scale 0.0")
         adb.shell("settings put global animator_duration_scale 0.0")
-        print(f"{Colors.GREEN}✓ Animation scales set to 0.0x (Instant response).{Colors.RESET}")
+        print(f"  {Colors.GREEN}✓ Animation scales set to 0.0x (Instant response).{Colors.RESET}")
 
     if choice == "2":
         adb.shell("settings put global window_animation_scale 0.5")
         adb.shell("settings put global transition_animation_scale 0.5")
         adb.shell("settings put global animator_duration_scale 0.5")
-        print(f"{Colors.GREEN}✓ Animation scales set to 0.5x (Liquid smooth motion).{Colors.RESET}")
+        print(f"  {Colors.GREEN}✓ Animation scales set to 0.5x (Liquid smooth motion).{Colors.RESET}")
 
     if choice in ("3", "5"):
         print(f"\n{Colors.CYAN}Applying AppOps background execution freeze to installed streaming apps...{Colors.RESET}")
@@ -370,17 +559,18 @@ def action_extreme_speed(adb: ADB, profiler: TVProfiler, preset: str = "5"):
                 adb.shell(f"cmd appops set {pkg} RUN_IN_BACKGROUND ignore")
                 adb.shell(f"cmd appops set {pkg} RUN_ANY_IN_BACKGROUND ignore")
                 print(f"  {Colors.GREEN}✓ Frozen in background on exit:{Colors.RESET} {name}")
-        print(f"{Colors.GREEN}✓ Streaming apps will now release 100% CPU upon pressing Home!{Colors.RESET}")
+        print(f"  {Colors.GREEN}✓ Streaming apps will now release 100% CPU upon pressing Home!{Colors.RESET}")
 
     if choice in ("4", "5"):
         adb.shell("settings put global force_gpu_rendering 1")
         adb.shell("settings put global wifi_scan_always_enabled 0")
         adb.shell("settings put secure location_mode 0")
-        print(f"{Colors.GREEN}✓ Forced 100% GPU composition and disabled Wi-Fi scanning latency spikes.{Colors.RESET}")
+        print(f"  {Colors.GREEN}✓ Forced 100% GPU composition and disabled Wi-Fi scanning latency spikes.{Colors.RESET}")
 
+# --- Ahead-Of-Time (AOT) Machine Code Compilation ---
 def action_aot_compile(adb: ADB, profiler: TVProfiler):
     print(f"\n{Colors.BOLD}{Colors.CYAN}--- Ahead-Of-Time (AOT) Machine Code Compilation ---{Colors.RESET}")
-    print("Compiles app bytecode directly into native ARM machine code (`-m speed`).")
+    print("Compiles app bytecode directly into native ARM machine code (`dex2oat -m speed`).")
     print("This eliminates JIT compilation lag on bootup and during app launches.\n")
     
     target_apps = [
@@ -397,13 +587,14 @@ def action_aot_compile(adb: ADB, profiler: TVProfiler):
     
     for pkg, name in target_apps:
         if pkg in profiler.installed_packages:
-            print(f"Compiling {name} ({pkg})...", end="", flush=True)
+            print(f"  Compiling {name} ({pkg})...", end="", flush=True)
             res = adb.shell(f"cmd package compile -m speed {pkg}")
             if "Success" in res:
                 print(f" {Colors.GREEN}[Success]{Colors.RESET}")
             else:
                 print(f" {Colors.YELLOW}[Skipped/Status: {res}]{Colors.RESET}")
 
+# --- System-Wide Private DNS Ad-Blocker ---
 def action_private_dns(adb: ADB, provider: Optional[str] = None):
     print(f"\n{Colors.BOLD}{Colors.CYAN}--- System-Wide Private DNS Ad-Blocker ---{Colors.RESET}")
     print("Blocks in-app banner ads and telemetry tracking domains across the entire TV with 0 RAM.")
@@ -413,10 +604,11 @@ def action_private_dns(adb: ADB, provider: Optional[str] = None):
     
     choice = provider
     if not choice:
-        print("1. Enable AdGuard DNS (dns.adguard-dns.com) [Recommended]")
-        print("2. Enable Quad9 Privacy DNS (dns.quad9.net)")
-        print("3. Disable Private DNS (Revert to default ISP)")
-        choice_input = input("Select an option (1-3): ").strip()
+        print("  [1] 🛡️ Enable AdGuard DNS (dns.adguard-dns.com) [Recommended]")
+        print("  [2] 🔒 Enable Quad9 Privacy DNS (dns.quad9.net)")
+        print("  [3] ↩️ Disable Private DNS (Revert to default ISP)")
+        choice_input = input("\nSelect an option (1-3) [Default: 1]: ").strip()
+        choice_input = choice_input or "1"
         if choice_input == "1":
             choice = "adguard"
         elif choice_input == "2":
@@ -427,25 +619,23 @@ def action_private_dns(adb: ADB, provider: Optional[str] = None):
     if choice == "adguard":
         adb.shell("settings put global private_dns_mode hostname")
         adb.shell("settings put global private_dns_specifier dns.adguard-dns.com")
-        print(f"{Colors.GREEN}✓ AdGuard Private DNS enabled system-wide!{Colors.RESET}")
+        print(f"  {Colors.GREEN}✓ AdGuard Private DNS enabled system-wide!{Colors.RESET}")
     elif choice == "quad9":
         adb.shell("settings put global private_dns_mode hostname")
         adb.shell("settings put global private_dns_specifier dns.quad9.net")
-        print(f"{Colors.GREEN}✓ Quad9 Private DNS enabled system-wide!{Colors.RESET}")
+        print(f"  {Colors.GREEN}✓ Quad9 Private DNS enabled system-wide!{Colors.RESET}")
     elif choice == "off":
         adb.shell("settings put global private_dns_mode off")
         adb.shell("settings put global private_dns_specifier null")
-        print(f"{Colors.YELLOW}✓ Private DNS disabled.{Colors.RESET}")
+        print(f"  {Colors.YELLOW}✓ Private DNS disabled.{Colors.RESET}")
 
+# --- SmartTube Auto-Installer ---
 def action_install_smarttube(adb: ADB, profiler: TVProfiler):
     print(f"\n{Colors.BOLD}{Colors.CYAN}--- Install SmartTube (Ad-Free YouTube Client) ---{Colors.RESET}")
     print("SmartTube is 100% ad-free, skips sponsored segments with SponsorBlock, and supports 4K HDR.")
     
     abi = profiler.specs.get("cpu_abi", "armeabi-v7a")
-    if "arm64" in abi:
-        download_abi = "arm64-v8a"
-    else:
-        download_abi = "armeabi-v7a"
+    download_abi = "arm64-v8a" if "arm64" in abi else "armeabi-v7a"
         
     print(f"Detected TV Architecture: {Colors.YELLOW}{abi}{Colors.RESET}")
     print("Querying latest official release from GitHub (yuliskov/SmartTube)...")
@@ -469,34 +659,85 @@ def action_install_smarttube(adb: ADB, profiler: TVProfiler):
             print("Installing to TV via ADB...")
             res = adb.run("install", "-r", local_apk)
             if "Success" in res:
-                print(f"{Colors.GREEN}✓ SmartTube installed successfully!{Colors.RESET}")
+                print(f"  {Colors.GREEN}✓ SmartTube installed successfully!{Colors.RESET}")
                 adb.shell("cmd package compile -m speed org.smarttube.stable")
-                print(f"{Colors.GREEN}✓ Pre-compiled SmartTube to native ARM code.{Colors.RESET}")
+                print(f"  {Colors.GREEN}✓ Pre-compiled SmartTube to native ARM code.{Colors.RESET}")
             else:
-                print(f"{Colors.RED}✗ Installation failed: {res}{Colors.RESET}")
+                print(f"  {Colors.RED}✗ Installation failed: {res}{Colors.RESET}")
             if os.path.exists(local_apk):
                 os.remove(local_apk)
     except Exception as e:
         print(f"{Colors.RED}Error downloading SmartTube: {e}{Colors.RESET}")
 
+# --- Comprehensive Factory Restoration Engine ---
 def action_restore(adb: ADB, profiler: TVProfiler, auto_confirm: bool = False):
-    print(f"\n{Colors.BOLD}{Colors.YELLOW}--- One-Click Full Factory Restoration ---{Colors.RESET}")
-    print("This will re-enable all previously disabled packages back to factory default.")
+    print(f"\n{Colors.BOLD}{Colors.YELLOW}┌──────────────────── Factory Restoration & Recovery Engine ────────────────────┐{Colors.RESET}")
+    print("  [1] 🔄 Re-enable All Disabled Packages (`pm enable <pkg>`)")
+    print("  [2] 📦 Re-install All Uninstalled User Packages (`cmd package install-existing`)")
+    print("  [3] 📂 Restore from a Previous Local Backup Snapshot File")
+    print("  [4] ⚡ Reset Animation Speeds Back to Factory Default (1.0x)")
+    print("  [5] 🚀 Complete Full System Restore (Execute ALL of the above)")
+    print(f"{Colors.YELLOW}└───────────────────────────────────────────────────────────────────────────────┘{Colors.RESET}")
+    
     if not auto_confirm:
-        choice = input("Are you sure you want to restore all packages? [y/N]: ").strip().lower()
-        if choice not in ("y", "yes"):
-            print("Restoration cancelled.")
-            return
+        choice = input("\nSelect restoration option (1-5) [0 to cancel]: ").strip()
+    else:
+        choice = "5"
 
-    for pkg in profiler.disabled_packages:
-        adb.shell(f"pm enable {pkg}")
-        print(f"  {Colors.GREEN}✓ Restored:{Colors.RESET} {pkg}")
-    adb.shell("settings put global window_animation_scale 1.0")
-    adb.shell("settings put global transition_animation_scale 1.0")
-    adb.shell("settings put global animator_duration_scale 1.0")
-    print(f"\n{Colors.GREEN}✓ All packages and default animation speeds restored!{Colors.RESET}")
+    if choice == "0":
+        print("Restoration cancelled.")
+        return
+
+    # Option 1 & 5: Re-enable disabled packages
+    if choice in ("1", "5"):
+        print(f"\n{Colors.CYAN}Re-enabling all {len(profiler.disabled_packages)} disabled packages...{Colors.RESET}")
+        for pkg in profiler.disabled_packages:
+            adb.shell(f"pm enable {pkg}")
+            print(f"  {Colors.GREEN}✓ Re-enabled:{Colors.RESET} {pkg}")
+
+    # Option 2 & 5: Re-install user uninstalled packages from database
+    if choice in ("2", "5"):
+        print(f"\n{Colors.CYAN}Checking for uninstalled system packages to re-register...{Colors.RESET}")
+        for pkg in BLOAT_DATABASE:
+            if pkg not in profiler.installed_packages:
+                res = adb.shell(f"cmd package install-existing {pkg}")
+                if "installed for user" in res:
+                    print(f"  {Colors.GREEN}✓ Re-registered for User 0:{Colors.RESET} {pkg}")
+
+    # Option 3: Restore from JSON backup file
+    if choice == "3":
+        backup_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backups")
+        if not os.path.isdir(backup_dir) or not os.listdir(backup_dir):
+            print(f"{Colors.YELLOW}No local backup snapshot files found in ./backups/{Colors.RESET}")
+        else:
+            files = sorted([f for f in os.listdir(backup_dir) if f.endswith(".json")], reverse=True)
+            print("\nAvailable backup snapshots:")
+            for idx, fname in enumerate(files[:5], 1):
+                print(f"  [{idx}] {fname}")
+            f_choice = input(f"Select snapshot (1-{min(5, len(files))}): ").strip()
+            if f_choice.isdigit() and 1 <= int(f_choice) <= len(files):
+                target_file = os.path.join(backup_dir, files[int(f_choice) - 1])
+                with open(target_file, "r", encoding="utf-8") as f:
+                    bdata = json.load(f)
+                prev_disabled = set(bdata.get("disabled_packages", []))
+                print(f"\nRestoring package states from snapshot ({bdata.get('timestamp')})...")
+                for pkg in profiler.disabled_packages:
+                    if pkg not in prev_disabled:
+                        adb.shell(f"pm enable {pkg}")
+                        print(f"  {Colors.GREEN}✓ Restored active state:{Colors.RESET} {pkg}")
+
+    # Option 4 & 5: Reset animations & GPU settings
+    if choice in ("4", "5"):
+        adb.shell("settings put global window_animation_scale 1.0")
+        adb.shell("settings put global transition_animation_scale 1.0")
+        adb.shell("settings put global animator_duration_scale 1.0")
+        adb.shell("settings put global force_gpu_rendering 0")
+        print(f"  {Colors.GREEN}✓ Default animation scales (1.0x) and GPU compositions restored!{Colors.RESET}")
+
+    print(f"\n{Colors.GREEN}{Colors.BOLD}✓ Restoration complete! TV has been safely restored.{Colors.RESET}")
     profiler.scan()
 
+# --- Main Program Entry Point ---
 def main():
     parser = argparse.ArgumentParser(
         description="UnbloatTV - Intelligent Hardware-Aware Android TV & Google TV Optimizer",
@@ -507,17 +748,20 @@ Examples:
   python3 unbloat.py --status            # Print TV hardware diagnostic profile
   python3 unbloat.py --auto -y           # Run complete 1-click optimization
   python3 unbloat.py --debloat -y        # Safely disable bloatware & telemetry
+  python3 unbloat.py --mode uninstall    # Deep uninstall bloatware for user 0
   python3 unbloat.py --freeze            # Apply AppOps background freeze & GPU boost
   python3 unbloat.py --aot               # AOT machine code speed compilation
   python3 unbloat.py --dns adguard       # Enable AdGuard Private DNS
   python3 unbloat.py --smarttube         # Auto-download & install SmartTube APK
-  python3 unbloat.py --restore -y        # Factory restore all disabled packages
+  python3 unbloat.py --restore -y        # Factory restore all packages and settings
         """
     )
     parser.add_argument("-d", "--device", help="Target device IP address (e.g. 192.168.1.50) or ADB serial")
     parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompts (auto-confirm)")
     parser.add_argument("--auto", action="store_true", help="Execute complete optimization (Debloat + Freeze + AOT + DNS)")
     parser.add_argument("--debloat", action="store_true", help="Disable brand bloatware and background telemetry")
+    parser.add_argument("--mode", choices=["disable", "uninstall"], default="disable", help="Debloat operation mode: 'disable' (reversible) or 'uninstall' (user 0)")
+    parser.add_argument("--category", choices=["telemetry", "ads", "oem_store", "utility", "all"], default="all", help="Filter bloatware by category")
     parser.add_argument("--freeze", action="store_true", help="Freeze background streaming apps and boost GPU rendering")
     parser.add_argument("--aot", action="store_true", help="Pre-compile installed apps to native ARM machine code")
     parser.add_argument("--dns", choices=["adguard", "quad9", "off"], help="Configure system-wide Private DNS ad-blocker")
@@ -546,14 +790,14 @@ Examples:
     if has_cli_action:
         profiler.print_summary()
         if args.auto:
-            action_debloat(adb, profiler, auto_confirm=args.yes)
+            action_debloat(adb, profiler, auto_confirm=args.yes, mode=args.mode, category_filter=args.category)
             action_extreme_speed(adb, profiler, preset="5")
             action_aot_compile(adb, profiler)
             action_private_dns(adb, provider="adguard")
             print(f"\n{Colors.GREEN}{Colors.BOLD}🎉 Complete Auto-Optimization Finished! Your TV is at peak speed.{Colors.RESET}")
         else:
             if args.debloat:
-                action_debloat(adb, profiler, auto_confirm=args.yes)
+                action_debloat(adb, profiler, auto_confirm=args.yes, mode=args.mode, category_filter=args.category)
             if args.freeze:
                 action_extreme_speed(adb, profiler, preset="5")
             if args.aot:
@@ -572,18 +816,18 @@ Examples:
     while True:
         print(f"\n{Colors.BOLD}{Colors.CYAN}=== UnbloatTV Master Control Menu ==={Colors.RESET}")
         print(f"  {Colors.BOLD}[1]{Colors.RESET} 🚀 {Colors.GREEN}One-Click Auto Optimize{Colors.RESET} (Safe Debloat + GPU Boost + AppOps Freeze)")
-        print(f"  {Colors.BOLD}[2]{Colors.RESET} 🧹 Safe Debloat & Telemetry Removal")
+        print(f"  {Colors.BOLD}[2]{Colors.RESET} 🧹 Intelligent Debloat & Cleaner (Choose Disable vs Uninstall)")
         print(f"  {Colors.BOLD}[3]{Colors.RESET} ⚡ Extreme Speed & AppOps Background Freeze")
         print(f"  {Colors.BOLD}[4]{Colors.RESET} 🏎️ Ahead-Of-Time (AOT) Machine Code Compilation")
         print(f"  {Colors.BOLD}[5]{Colors.RESET} 🛡️ System-Wide Ad-Blocker (Private DNS)")
         print(f"  {Colors.BOLD}[6]{Colors.RESET} 📺 Install SmartTube (Ad-Free YouTube with SponsorBlock)")
-        print(f"  {Colors.BOLD}[7]{Colors.RESET} 🔍 Rescan TV Hardware & Memory")
-        print(f"  {Colors.BOLD}[8]{Colors.RESET} 🔄 Restore All Disabled Packages to Factory Default")
+        print(f"  {Colors.BOLD}[7]{Colors.RESET} 🔍 Rescan TV Hardware & Health Score")
+        print(f"  {Colors.BOLD}[8]{Colors.RESET} 🔄 Factory Restoration & Safety Recovery")
         print(f"  {Colors.BOLD}[0]{Colors.RESET} ❌ Exit")
 
         choice = input(f"\n{Colors.BOLD}Choose an option (0-8): {Colors.RESET}").strip()
         if choice == "1":
-            action_debloat(adb, profiler)
+            action_debloat(adb, profiler, auto_confirm=True, mode="disable")
             action_extreme_speed(adb, profiler, preset="5")
             action_aot_compile(adb, profiler)
             action_private_dns(adb, provider="adguard")

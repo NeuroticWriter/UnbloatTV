@@ -6,13 +6,14 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Android TV](https://img.shields.io/badge/Android%20TV-9%20to%2014-green.svg)](https://android.com/tv/)
 [![Google TV](https://img.shields.io/badge/Google%20TV-Compatible-orange.svg)](https://tv.google/)
+[![Windows Compatible](https://img.shields.io/badge/Windows-unbloat.bat-0078D6.svg)]()
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-brightgreen.svg)]()
 [![Reversible](https://img.shields.io/badge/Safety-100%25%20Reversible-success.svg)]()
 
 **The Intelligent, Hardware-Aware Optimizer & Debloater for Android TV & Google TV.**  
 *Turn laggy, stuttering smart TVs into fluid, lightning-fast streaming machines in minutes.*
 
-[Quick Start](#-quick-start) • [Why UnbloatTV?](#-why-unbloat-tv-vs-alternatives) • [Features](#-features) • [CLI Usage](#-command-line-options) • [AI Agent Protocol](#-ai-assistant--agent-prompt) • [Safety Guarantee](#-safety-guarantee)
+[Quick Start](#-quick-start) • [Disable vs Uninstall](#-choose-your-mode-disable-vs-uninstall) • [Why UnbloatTV?](#-why-unbloat-tv-vs-alternatives) • [Features](#-features) • [CLI Usage](#-command-line-options) • [AI Agent Protocol](#-ai-assistant--agent-prompt) • [Safety Guarantee](#-safety-guarantee)
 
 </div>
 
@@ -38,7 +39,31 @@ Out of the box, they are overwhelmed by:
 3. **Runaway Background Streaming Apps:** Apps like Hotstar, Prime Video, Netflix, and SonyLIV continue executing in the background after you return home, consuming up to 70% of remaining RAM.
 4. **JIT Compilation Jitter:** Bytecode interpretation creates micro-stutters during menu navigation.
 
-**UnbloatTV** solves this intelligently by analyzing your specific TV hardware (SoC architecture, memory pool, and installed brand packages) and applying surgical, non-destructive optimizations.
+**UnbloatTV** solves this intelligently by analyzing your specific TV hardware (SoC architecture, memory pool, and installed brand packages) and applying surgical, customizable, and non-destructive optimizations.
+
+---
+
+## 🛡️ Choose Your Mode: Disable vs. Uninstall
+
+UnbloatTV puts you in complete control. Whenever you debloat, you can choose between two safe operation modes:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│ [Mode 1] 🛡️ Safe Disable (Recommended / 100% Safe)                                │
+│   • Command: pm disable-user --user 0 <package>                                  │
+│   • Keeps the APK file safely inside the read-only /system partition             │
+│   • Completely stops the service from running in background (frees 100% RAM/CPU) │
+│   • Can be re-enabled in 1 second via 'pm enable'. Zero risk to system updates    │
+├──────────────────────────────────────────────────────────────────────────────────┤
+│ [Mode 2] 🧹 Deep User Uninstall (Advanced Storage Cleaner)                       │
+│   • Command: pm uninstall -k --user 0 <package>                                  │
+│   • Uninstalls the package registration and clears local app cache for User 0    │
+│   • Frees user storage partition space in addition to background RAM             │
+│   • System APK is preserved in ROM; restorable via 'cmd package install-existing'│
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+Every action automatically saves a timestamped JSON snapshot in `./backups/` so you can restore your original setup anytime!
 
 ---
 
@@ -47,13 +72,16 @@ Out of the box, they are overwhelmed by:
 | Feature | **UnbloatTV** | **CleanYourTV** | **Generic ADB Scripts** |
 | :--- | :---: | :---: | :---: |
 | **Hardware Architecture Profiler** | ⚡ **Automatic** (RAM pool, CPU ABI, SoC) | ❌ None | ❌ None |
-| **Model & Brand Specific Bloat** | ✅ Croma, Xiaomi, TCL, Sony, Hisense, Google | ⚠️ Basic Android TV only | ❌ Hardcoded |
+| **TV Health & Optimization Score** | 📊 **Live 0-100 Score** with diagnostics | ❌ None | ❌ None |
+| **User Choice: Disable vs Uninstall** | 🛡️ **Full Choice** with safety guidance | ❌ Forces uninstall | ⚠️ Varies |
+| **Model & Brand Specific Bloat** | ✅ Croma, Xiaomi, TCL, Sony, Hisense, OnePlus | ⚠️ Basic Android TV only | ❌ Hardcoded |
 | **"Watch Next" & Channel Streaming** | 🌟 **Full Support** (Pairs with Projectivy) | ❌ Broken (Flat static dock) | ⚠️ Manual |
 | **AppOps Background Process Freeze** | 🚀 **Yes** (Streaming apps freeze on exit) | ❌ No | ❌ No |
 | **Ahead-Of-Time (AOT) ARM Compilation**| 🏎️ **Yes** (`dex2oat -m speed`) | ❌ No | ❌ No |
 | **Zero-RAM AdGuard Private DNS** | 🛡️ **1-Click System-Wide** | ❌ No | ⚠️ Manual shell command |
 | **Architecture-Matched SmartTube** | 📺 **Auto-fetches armeabi-v7a / arm64-v8a** | ❌ No | ❌ Manual sideload |
-| **Safety & Restoration** | 🔒 **100% Non-destructive** (`pm disable-user`) | ⚠️ Uses destructive `pm uninstall` | ⚠️ Risk of bootloop |
+| **Safety Snapshots & Restore** | 🔒 **Auto-backup manifest + 1-Click Restore** | ❌ No backups | ⚠️ Risk of bootloop |
+| **Cross-Platform Launchers** | 💻 **macOS/Linux (.sh) + Windows (.bat)** | ⚠️ Bash only | ⚠️ Varies |
 | **External Dependencies** | 🟢 **Zero** (Pure Python 3 stdlib) | ⚠️ Node / Bash / Curl | ⚠️ Varies |
 | **AI Agent Support** | 🤖 **Built-in `PROMPT.md` Protocol** | ⚠️ Generic prompt | ❌ None |
 
@@ -62,13 +90,21 @@ Out of the box, they are overwhelmed by:
 ## ✨ Features
 
 - 🔍 **Hardware & Memory Scanner:** Automatically inspects your TV's SoC (Mediatek, Amlogic, Realtek, Qualcomm), CPU ABI (`armeabi-v7a` or `arm64-v8a`), total physical RAM, available memory, and disabled package list.
-- 🧹 **Brand-Aware Safe Debloat:** Disables non-essential OEM daemons, diagnostic spies, telemetry collectors, and ad services without touching critical system HALs, display drivers, or HDMI inputs.
+- 📊 **Intelligent Health Score (0-100):** Evaluates system bottlenecks in real-time (RAM strain, active background bloatware count, animation speeds, and Wi-Fi scanning latency spikes).
+- 🧹 **Granular Package Selection:**
+  - **All Recommended:** 1-click clean of all verified bloatware.
+  - **By Category:** Filter by Telemetry, Ads, OEM Stores, Utilities, or Media.
+  - **Custom Range:** Toggle specific packages with simple number inputs (e.g. `1, 3, 5-8`).
 - ⚡ **Extreme Speed Preset:** Sets UI animation scales to `0.0x` (instant touch/remote response) or `0.5x` (liquid glass motion) and forces full 2D GPU hardware acceleration.
 - ❄️ **AppOps Background Freeze:** Configures `cmd appops set <pkg> RUN_IN_BACKGROUND ignore` on heavy streaming apps (Hotstar, Netflix, Amazon Prime, SonyLIV, Zee5, MX Player). When you press the Home button, apps immediately release CPU/RAM!
 - 🏎️ **Ahead-Of-Time (AOT) Compilation:** Compiles high-priority TV apps directly into native ARM machine code using Android's `dex2oat` compiler (`cmd package compile -m speed`), eliminating startup lag.
 - 🛡️ **System-Wide Ad-Blocking (0 MB RAM):** Enables encrypted Private DNS (AdGuard / Quad9) natively at the Android OS layer. Blocks banner ads and telemetry tracking across the entire TV without running heavy VPN background apps.
 - 📺 **SmartTube Installer:** Auto-detects whether your TV runs 32-bit or 64-bit ARM, fetches the latest official release from GitHub, installs it via ADB, and pre-compiles it with AOT speed optimization.
-- 🔄 **One-Click Factory Reset:** Never worry about breaking anything. Re-enable all disabled packages and restore default animations with a single command.
+- 🔄 **Advanced Factory Restoration:**
+  - Re-enable all disabled packages (`pm enable`).
+  - Re-install user uninstalled packages (`cmd package install-existing`).
+  - Restore state from any saved JSON snapshot file.
+  - Reset animations and GPU compositions back to factory default.
 
 ---
 
@@ -91,15 +127,21 @@ Out of the box, they are overwhelmed by:
 
 ### 2. Run UnbloatTV
 
-#### Option A: One-Liner (macOS & Linux)
+#### On macOS & Linux (One-Liner):
 ```bash
 curl -sSL https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.sh | bash
 ```
 
-#### Option B: Clone & Run (All Platforms)
-```bash
+#### On Windows:
+Double-click `unbloat.bat` or run:
+```cmd
 git clone https://github.com/NeuroticWriter/UnbloatTV.git
 cd UnbloatTV
+unbloat.bat
+```
+
+#### On Any System via Python:
+```bash
 python3 unbloat.py
 ```
 
@@ -112,8 +154,10 @@ python3 unbloat.py
 UnbloatTV can be used either as an interactive terminal UI or in headless/automated scripts:
 
 ```
-usage: unbloat.py [-h] [-d DEVICE] [-y] [--auto] [--debloat] [--freeze]
-                  [--aot] [--dns {adguard,quad9,off}] [--smarttube]
+usage: unbloat.py [-h] [-d DEVICE] [-y] [--auto] [--debloat]
+                  [--mode {disable,uninstall}]
+                  [--category {telemetry,ads,oem_store,utility,all}]
+                  [--freeze] [--aot] [--dns {adguard,quad9,off}] [--smarttube]
                   [--restore] [--status]
 
 options:
@@ -122,23 +166,30 @@ options:
   -y, --yes             Skip confirmation prompts (auto-confirm)
   --auto                Execute complete optimization (Debloat + Freeze + AOT + DNS)
   --debloat             Disable brand bloatware and background telemetry
+  --mode {disable,uninstall}
+                        Debloat operation mode: 'disable' (safe) or 'uninstall' (user 0)
+  --category {telemetry,ads,oem_store,utility,all}
+                        Filter bloatware by category
   --freeze              Freeze background streaming apps and boost GPU rendering
   --aot                 Pre-compile installed apps to native ARM machine code
   --dns {adguard,quad9,off}
                         Configure system-wide Private DNS ad-blocker
   --smarttube           Download and install architecture-matched SmartTube APK
   --restore             Restore all disabled packages and reset animation scales
-  --status              Display hardware profile and memory metrics then exit
+  --status              Display hardware profile, Health Score, and memory metrics then exit
 ```
 
 ### Examples
 
 ```bash
-# Check TV hardware specifications and memory
+# Check TV hardware specifications and Health Score
 python3 unbloat.py --status
 
-# Full 1-Click Optimization (Debloat + Freeze + AOT + AdGuard DNS)
+# Full 1-Click Safe Optimization (Debloat + Freeze + AOT + AdGuard DNS)
 python3 unbloat.py --auto -y
+
+# Deep uninstall telemetry and ads for User 0
+python3 unbloat.py --debloat --mode uninstall --category ads -y
 
 # Connect directly to a specific TV IP
 python3 unbloat.py -d 192.168.1.50:5555 --auto -y
@@ -159,7 +210,7 @@ UnbloatTV includes a dedicated [`PROMPT.md`](PROMPT.md) protocol file. You can s
 Run the UnbloatTV protocol in PROMPT.md to inspect my connected Android TV and apply optimal hardware tuning.
 ```
 
-Your AI assistant will autonomously scan your device, identify hardware bottlenecks (e.g. 1 GB RAM pool, Mediatek board), avoid critical system HALs, and optimize your TV safely.
+Your AI assistant will autonomously scan your device, identify hardware bottlenecks, avoid critical system HALs, and optimize your TV safely.
 
 ---
 
@@ -186,15 +237,11 @@ For the ultimate TV experience, combine UnbloatTV with **Projectivy Launcher**:
 
 ## 🛡️ Safety Guarantee
 
-UnbloatTV never uses `pm uninstall` or `rm` on system partitions. All package operations use:
+UnbloatTV is engineered from the ground up for maximum safety:
 
-```bash
-pm disable-user --user 0 <package_name>
-```
-
-- **Non-destructive:** Package binaries remain untouched in `/system`.
-- **Zero brick risk:** Critical system packages (System UI, Settings, Package Installer, Dolby Audio, Bluetooth, Remote services, and Mediatek panel backlight drivers) are strictly protected by an unbypassable whitelist.
-- **100% Reversible:** Running `python3 unbloat.py --restore` instantly re-enables all packages.
+- **Unbypassable System Whitelist:** Critical system packages (System UI, Settings, Package Installer, Dolby Audio, Bluetooth, Remote pairing services, and Mediatek panel backlight drivers) are hardcoded in `PROTECTED_PACKAGES` and can never be disabled or uninstalled.
+- **Automated Safety Snapshots:** A JSON manifest of your installed and disabled package states is saved to `./backups/` before any changes are written.
+- **100% Reversible:** Running `python3 unbloat.py --restore` instantly re-enables all packages or re-registers uninstalled packages via `cmd package install-existing`.
 
 ---
 

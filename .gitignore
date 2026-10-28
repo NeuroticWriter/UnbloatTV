@@ -34,6 +34,10 @@ wheels/
 .LSOverride
 ._*
 
+# Backups & Snapshots
+backups/
+unbloat_backup_*.json
+
 # Editors & IDEs
 .idea/
 .vscode/
