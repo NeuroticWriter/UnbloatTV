@@ -70,6 +70,10 @@ UnbloatTV scans your TV hardware via ADB over local Wi-Fi, computes a **Real-Tim
 
 ## 🚀 Introducing DLaunch — Auto-Adjusting Minimalist TV Launcher
 
+<p align="center">
+  <img src="docs/dlaunch_live.png" alt="DLaunch Running Live on Android TV Hardware" width="850">
+</p>
+
 DLaunch (`com.dewzone.dlaunch`) is UnbloatTV's native, bespoke Android TV launcher engineered for speed and simplicity:
 
 * **Ultra-Lightweight Binary:** Only **33 KB** total APK size with zero external dependencies (compared to CleanYourTV's 240 KB–530 KB launcher and stock OEM launchers over 50 MB).

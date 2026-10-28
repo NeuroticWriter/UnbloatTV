@@ -84,15 +84,22 @@ public class DLaunchActivity extends Activity {
         updateDate();
 
         View btnInputs = findViewById(R.id.btn_inputs);
+        View btnSettings = findViewById(R.id.btn_settings);
+
         if (btnInputs != null) {
             btnInputs.setOnFocusChangeListener(new FocusAnimator(1.06f));
             btnInputs.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_INPUTS));
+            if (btnSettings != null) {
+                btnInputs.setNextFocusRightId(btnSettings.getId());
+            }
         }
 
-        View btnSettings = findViewById(R.id.btn_settings);
         if (btnSettings != null) {
             btnSettings.setOnFocusChangeListener(new FocusAnimator(1.06f));
             btnSettings.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SETTINGS));
+            if (btnInputs != null) {
+                btnSettings.setNextFocusLeftId(btnInputs.getId());
+            }
         }
     }
 
@@ -201,7 +208,18 @@ public class DLaunchActivity extends Activity {
             sectionFavoritesContainer.setVisibility(View.VISIBLE);
             for (AppItem app : favoriteApps) {
                 View tile = createTileView(inflater, favoritesRow, app, true);
+                tile.setId(View.generateViewId());
                 favoritesRow.addView(tile);
+            }
+            // Lock horizontal focus strictly within favorites shelf
+            int favCount = favoritesRow.getChildCount();
+            for (int i = 0; i < favCount; i++) {
+                View curr = favoritesRow.getChildAt(i);
+                if (i > 0) {
+                    View prev = favoritesRow.getChildAt(i - 1);
+                    curr.setNextFocusLeftId(prev.getId());
+                    prev.setNextFocusRightId(curr.getId());
+                }
             }
         }
 
@@ -232,6 +250,7 @@ public class DLaunchActivity extends Activity {
                     if (index < total) {
                         AppItem app = allApps.get(index);
                         View tile = createTileView(inflater, rowLayout, app, false);
+                        tile.setId(View.generateViewId());
                         rowLayout.addView(tile);
                     } else {
                         // Invisible dummy spacer to preserve exact column widths
@@ -245,6 +264,20 @@ public class DLaunchActivity extends Activity {
                         dummy.setFocusable(false);
                         dummy.setFocusableInTouchMode(false);
                         rowLayout.addView(dummy);
+                    }
+                }
+
+                // Lock horizontal focus strictly within each row
+                int rowItemCount = rowLayout.getChildCount();
+                View lastRealTile = null;
+                for (int i = 0; i < rowItemCount; i++) {
+                    View curr = rowLayout.getChildAt(i);
+                    if (curr.isFocusable()) {
+                        if (lastRealTile != null) {
+                            curr.setNextFocusLeftId(lastRealTile.getId());
+                            lastRealTile.setNextFocusRightId(curr.getId());
+                        }
+                        lastRealTile = curr;
                     }
                 }
 
@@ -309,8 +342,9 @@ public class DLaunchActivity extends Activity {
             starBadge.setVisibility(View.GONE);
         }
 
-        // TV Remote Focus Animation & Marquee Effect
+        // TV Remote Focus Animation, Marquee & Strict Horizontal Navigation
         tile.setOnFocusChangeListener(new TileFocusListener(labelView));
+        tile.setOnKeyListener(new TileKeyListener());
         tile.setOnClickListener(new TileClickListener(this, app));
         tile.setOnLongClickListener(new TileLongClickListener(this, app));
 
@@ -467,6 +501,44 @@ public class DLaunchActivity extends Activity {
             activity.showAppContextMenu(app);
             return true;
         }
+    }
+
+    private static class TileKeyListener implements View.OnKeyListener {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    View next = findNextFocusableInRow(v, 1);
+                    if (next != null) {
+                        next.requestFocus();
+                        return true;
+                    }
+                } else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                    View prev = findNextFocusableInRow(v, -1);
+                    if (prev != null) {
+                        prev.requestFocus();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+
+    private static View findNextFocusableInRow(View current, int delta) {
+        if (current != null && current.getParent() instanceof ViewGroup) {
+            ViewGroup parent = (ViewGroup) current.getParent();
+            int index = parent.indexOfChild(current);
+            int target = index + delta;
+            while (target >= 0 && target < parent.getChildCount()) {
+                View sibling = parent.getChildAt(target);
+                if (sibling != null && sibling.isFocusable() && sibling.getVisibility() == View.VISIBLE) {
+                    return sibling;
+                }
+                target += delta;
+            }
+        }
+        return null;
     }
 
     private static class DialogMenuListener implements DialogInterface.OnClickListener {

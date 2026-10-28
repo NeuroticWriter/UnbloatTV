@@ -62,6 +62,9 @@ PROTECTED_PACKAGES: Set[str] = {
     "com.homwee.dynamicbacklight",  # Mediatek/Croma Panel Backlight Driver
     "com.mediatek.tv.service",  # Mediatek Display & TV stack
     "com.mediatek.tvinput",  # HDMI input switcher
+    "com.google.android.tv.inputplayer",  # TV & HDMI Inputs Switcher
+    "com.gdch.android.tv.inputplayer",
+    "com.dewzone.dlaunch",  # DLaunch Minimalist TV Launcher
     "com.mediatek.autopair",  # Remote pairing
     "com.google.android.tv.remote.service",  # TV remote service
     "com.google.android.tv.googletvremotepairer",
@@ -97,7 +100,6 @@ BLOAT_DATABASE: Dict[str, Tuple[str, str, str, str]] = {
     "com.google.android.apps.tv.dreamx": ("Ambient Screensaver", "Google Photos / art screensaver", "screensaver", "CAUTION"),
     "com.android.dreams.basic": ("Basic Screensaver", "Standard Android screensaver", "screensaver", "CAUTION"),
     "com.cltv.hybrid": ("CloudTV Hybrid", "Broadcast antenna channel aggregator", "live_tv", "CAUTION"),
-    "com.google.android.tv.inputplayer": ("Live TV Tuner Player", "Broadcast channel tuner player", "live_tv", "CAUTION"),
 
     # 2. Croma / Changhong OEM Junk
     "com.homwee.store": ("Croma App Store", "OEM app store (duplicates Play Store)", "oem_store", "SAFE"),

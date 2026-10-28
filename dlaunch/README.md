@@ -3,6 +3,10 @@
 
 **DLaunch** (`com.dewzone.dlaunch`) is a bespoke, featherweight Android TV home launcher designed specifically for **UnbloatTV**. Built with 100% native Android framework code, it provides instant responsiveness, zero bloat, and auto-adapts to any TV display resolution from 720p to 4K UHD.
 
+<p align="center">
+  <img src="../docs/dlaunch_live.png" alt="DLaunch Live TV Screenshot" width="850">
+</p>
+
 ---
 
 ## ✨ Features

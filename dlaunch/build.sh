@@ -63,7 +63,7 @@ echo "6. Aligning APK with zipalign..."
 "$ZIPALIGN" -f -p 4 "$BUILD_DIR/dlaunch_unaligned.apk" "$BUILD_DIR/dlaunch_aligned.apk"
 
 echo "7. Signing APK with apksigner..."
-KEYSTORE="$BUILD_DIR/debug.keystore"
+KEYSTORE="$SCRIPT_DIR/dlaunch.keystore"
 if [ ! -f "$KEYSTORE" ]; then
     keytool -genkeypair \
         -keystore "$KEYSTORE" \

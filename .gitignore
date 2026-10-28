@@ -25,6 +25,7 @@ wheels/
 *.apk
 !dlaunch/dlaunch.apk
 !tools/dlaunch.apk
+*.keystore
 *.idsig
 *.dex
 *.oat
