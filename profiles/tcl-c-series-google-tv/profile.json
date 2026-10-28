@@ -1,0 +1,11 @@
+{
+  "device": "TCL C-Series 4K Google TV",
+  "manufacturer": "TCL",
+  "brand": "TCL / FFALCON",
+  "board": "realtek / mediatek",
+  "cpu_abi": "armeabi-v7a",
+  "android_version": "11 - 12",
+  "disabled_packages_count": 12,
+  "verified_by": "UnbloatTV Community",
+  "notes": "Removes TCL commercial adware, FFALCON ad engine, and sponsored promo rows."
+}

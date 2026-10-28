@@ -29,3 +29,4 @@ com.homwee.store
 com.homwee.upgrade
 com.mediatek.wwtv.setupwizard
 com.mediatek.wwtv.tvcenter.plus
+

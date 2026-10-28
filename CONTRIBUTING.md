@@ -52,3 +52,4 @@ Before submitting package additions to `BLOAT_DATABASE`:
 ## ☕ Sponsors & Supporters
 
 If you enjoy the project and want to support ongoing hardware benchmarking, consider [Buying Me a Coffee](https://buymeacoffee.com/dewzone)! Every cup keeps the code clean and verified.
+

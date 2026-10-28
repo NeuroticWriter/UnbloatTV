@@ -1,0 +1,11 @@
+{
+  "device": "Sony Bravia XR (X90J / A80J / X85K)",
+  "manufacturer": "Sony",
+  "brand": "Sony Bravia",
+  "board": "mediatek / cognitive-xr",
+  "cpu_abi": "arm64-v8a",
+  "android_version": "10 - 12",
+  "disabled_packages_count": 8,
+  "verified_by": "UnbloatTV Community",
+  "notes": "Removes Samba TV ACR tracking and Sony promo feeds without affecting Bravia picture processing engine."
+}

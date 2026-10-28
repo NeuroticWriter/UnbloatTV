@@ -1,0 +1,7 @@
+com.samba.cast
+com.sony.dtv.bravialife
+com.sony.dtv.interactivetvutil
+com.sony.dtv.recommendationservice
+com.google.android.partnersetup
+com.google.android.feedback
+com.android.tv.feedbackconsent

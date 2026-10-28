@@ -1,0 +1,11 @@
+{
+  "device": "Chromecast with Google TV (4K & HD)",
+  "manufacturer": "Google",
+  "brand": "Chromecast",
+  "board": "amlogic-s905x3",
+  "cpu_abi": "armeabi-v7a",
+  "android_version": "12",
+  "disabled_packages_count": 10,
+  "verified_by": "UnbloatTV Community",
+  "notes": "Removes Google TV stock launcher background autoplay trailers, freeing 180 MB RAM."
+}

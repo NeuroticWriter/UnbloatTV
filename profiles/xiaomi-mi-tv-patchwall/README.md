@@ -9,3 +9,4 @@
 - Disables telemetry analytics (`com.xiaomi.mitv.analytics`).
 - Removes redundant payment and store stubs (`com.xiaomi.mitv.payment`, `com.xiaomi.mitv.shop`).
 - Pairs seamlessly with Projectivy Launcher.
+

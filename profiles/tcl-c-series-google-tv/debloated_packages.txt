@@ -1,0 +1,9 @@
+com.tcl.commercial.uninstallation
+com.tcl.useragreement
+com.tcl.partnercustomizer
+com.tcl.appmarket2
+com.tcl.waterfall.overseas
+com.ffalcon.service
+com.google.android.partnersetup
+com.google.android.feedback
+com.android.tv.feedbackconsent

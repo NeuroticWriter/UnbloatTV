@@ -1,0 +1,45 @@
+name: UnbloatTV CI & Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Syntax & Compilation Check
+      run: |
+        python -m py_compile tools/unbloat.py
+        python tools/unbloat.py --help
+
+    - name: Validate Community JSON Profiles
+      run: |
+        python -c "
+        import json, glob
+        for f in glob.glob('profiles/**/profile.json', recursive=True):
+            with open(f) as fp:
+                data = json.load(fp)
+                print(f'✓ Validated: {f} ({data.get(\"device\", \"\")} - {data.get(\"board\", \"\")})')
+        "
+
+    - name: Validate Shell Scripts
+      run: |
+        bash -n unbloat.sh
+        bash -n tools/debloat.sh
+        bash -n tools/restore.sh
+        bash -n tools/status.sh

@@ -17,3 +17,4 @@
 6. **Launcher:** Projectivy Launcher with live dynamic 4K backdrops and "Watch Next" movie carousels.
 
 > **CRITICAL HARDWARE RULE:** Never touch `com.homwee.dynamicbacklight` (panel backlight driver) or `com.mediatek.tvinput` (HDMI switcher).
+

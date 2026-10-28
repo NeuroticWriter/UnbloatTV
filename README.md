@@ -7,11 +7,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/NeuroticWriter/UnbloatTV/actions"><img src="https://github.com/NeuroticWriter/UnbloatTV/actions/workflows/ci.yml/badge.svg" alt="CI Status"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square&color=00e5ff&labelColor=171c28" alt="License: MIT"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg?style=flat-square&color=00e676&labelColor=171c28" alt="Python 3.8+"></a>
   <a href="https://android.com/tv/"><img src="https://img.shields.io/badge/Android%20TV-9%20to%2014-green.svg?style=flat-square&color=69f0ae&labelColor=171c28" alt="Android TV"></a>
   <a href="https://tv.google/"><img src="https://img.shields.io/badge/Google%20TV-Compatible-orange.svg?style=flat-square&color=ffab40&labelColor=171c28" alt="Google TV"></a>
-  <img src="https://img.shields.io/badge/Windows-unbloat.bat-blue.svg?style=flat-square&color=448aff&labelColor=171c28" alt="Windows Compatible">
+  <img src="https://img.shields.io/badge/Windows-PowerShell%20%26%20Bat-blue.svg?style=flat-square&color=448aff&labelColor=171c28" alt="Windows Compatible">
   <img src="https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-brightgreen.svg?style=flat-square&color=00e5ff&labelColor=171c28" alt="Zero Dependencies">
   <img src="https://img.shields.io/badge/Safety-100%25%20Reversible-success.svg?style=flat-square&color=00e676&labelColor=171c28" alt="100% Reversible">
   <a href="https://buymeacoffee.com/dewzone"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg?style=flat-square&logo=buy-me-a-coffee&color=ffd54f&labelColor=171c28" alt="Buy Me A Coffee"></a>
@@ -25,10 +26,11 @@
 <p align="center">
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-what-you-get">What You Get</a> •
+  <a href="profiles/">Verified Profiles</a> •
   <a href="#-choose-your-mode-disable-vs-uninstall">Disable vs Uninstall</a> •
   <a href="#-why-unbloat-tv-vs-alternatives">Comparison</a> •
-  <a href="#-interactive-cli-experience">Terminal Preview</a> •
-  <a href="#-ai-assistant--agent-prompt">AI Agent Protocol</a> •
+  <a href="docs/REMOTE_REMAP.md">Remote Buttons</a> •
+  <a href="docs/NOT_ANDROID.md">Samsung/LG/Roku</a> •
   <a href="#-support--donations">Support & Donate</a>
 </p>
 
@@ -129,11 +131,12 @@ UnbloatTV puts you in complete control. Whenever you debloat, you can choose bet
 
 ### 2. Run UnbloatTV
 
-| Your Platform | How to Run |
+| Your Platform | How to Run (Choose 1) |
 | :--- | :--- |
 | **macOS & Linux (1-Liner)** | `curl -sSL https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.sh \| bash` |
-| **Windows** | Double-click `unbloat.bat` or run `.\unbloat.bat` in CMD / PowerShell |
-| **Any Platform via Shell** | `git clone https://github.com/NeuroticWriter/UnbloatTV.git`<br>`cd UnbloatTV && ./unbloat.sh` |
+| **Windows (PowerShell 1-Liner)**| `irm https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.ps1 \| iex` |
+| **Windows (Double-Click)** | Download repo and double-click `unbloat.bat` |
+| **Clone & Run via Shell** | `git clone https://github.com/NeuroticWriter/UnbloatTV.git`<br>`cd UnbloatTV && ./unbloat.sh` |
 
 *When prompted on your TV screen, check **"Always allow from this computer"** and select **OK**.*
 
@@ -208,10 +211,28 @@ Yes! UnbloatTV features an automated SmartTube installer. It detects whether you
 </details>
 
 <details>
+<summary><b>What if my TV runs Samsung Tizen, LG webOS, or Roku?</b></summary>
+<br>
+Samsung, LG, and Roku TVs do not run Android OS, so ADB debloating cannot run on them directly. However, you can still disable ACR tracking and personalized ads with your remote in 2 minutes! See our dedicated <a href="docs/NOT_ANDROID.md"><b>Non-Android TV Ad-Blocking Guide</b></a>.
+</details>
+
+<details>
+<summary><b>Can I remap the sponsored Netflix / Prime buttons on my remote?</b></summary>
+<br>
+Yes! You can remap useless hardcoded sponsored buttons on your physical remote to open <b>SmartTube</b>, <b>Projectivy Launcher</b>, or toggle Mute. Follow our simple <a href="docs/REMOTE_REMAP.md"><b>Remote Button Remapping Guide</b></a>.
+</details>
+
+<details>
+<summary><b>Where can I find verified profiles for my specific TV model?</b></summary>
+<br>
+Browse our community-tested hardware profiles in <a href="profiles/"><b><code>profiles/</code></b></a>. If your model isn't listed yet, export yours using <code>./unbloat.sh --export-profile</code> and open a Pull Request!
+</details>
+
+<details>
 <summary><b>How do I restore my TV back to factory default?</b></summary>
 <br>
 Simply launch UnbloatTV and select <code>[8] Factory Restoration & Safety Recovery</code>, or run:
-<pre>python3 unbloat.py --restore -y</pre>
+<pre>./unbloat.sh --restore -y</pre>
 All disabled packages are re-enabled, user uninstalled packages are re-registered, and animation scales are reset back to 1.0x with zero data loss.
 </details>
 

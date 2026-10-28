@@ -267,8 +267,73 @@ def generate_cli_preview():
     img.save(out_path, "PNG")
     print(f"Generated: {out_path}")
 
+# ==========================================
+# 4. SOCIAL PREVIEW CARD (1280 x 640)
+# ==========================================
+def generate_social_preview():
+    w, h = 1280, 640
+    img = Image.new("RGBA", (w, h), BG_DARK)
+    draw = ImageDraw.Draw(img)
+
+    # Ambient glows
+    glow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow)
+    for r in range(300, 0, -5):
+        alpha = int(40 * (1 - r / 300))
+        glow_draw.ellipse([w // 2 - r, h // 2 - 50 - r, w // 2 + r, h // 2 - 50 + r], fill=(0, 229, 255, alpha))
+    img = Image.alpha_composite(img, glow)
+    draw = ImageDraw.Draw(img)
+
+    draw_rounded_rect(draw, [20, 20, w - 20, h - 20], radius=24, outline=BORDER_COLOR, width=2)
+
+    # Pill
+    draw_rounded_rect(draw, [(w - 420) // 2, 70, (w + 420) // 2, 110], radius=20, fill=BG_CARD_LIGHT, outline=ACCENT_CYAN, width=1)
+    draw.text(((w - 420) // 2 + 25, 80), "⚡ UNIVERSAL ANDROID & GOOGLE TV OPTIMIZER", fill=ACCENT_CYAN, font=get_font(15, bold=True))
+
+    # Title
+    font_title = get_font(72, bold=True)
+    draw.text(((w - 380) // 2, 145), "UnbloatTV", fill=TEXT_WHITE, font=font_title)
+    draw.text(((w - 380) // 2 - 85, 145), "📺", font=font_title)
+
+    # Subtitle
+    font_sub = get_font(24, bold=False)
+    sub = "Hardware-Aware Debloater · AppOps Process Freezer · AOT Compiler"
+    sub_bbox = font_sub.getbbox(sub)
+    sw = sub_bbox[2] - sub_bbox[0]
+    draw.text(((w - sw) // 2, 245), sub, fill=TEXT_MUTED, font=font_sub)
+
+    # 3 Large Feature Cards
+    fc_w = 340
+    fc_h = 170
+    fc_y = 330
+    fc_gap = 40
+    total_w = 3 * fc_w + 2 * fc_gap
+    start_x = (w - total_w) // 2
+
+    fc_items = [
+        ("0 MB RAM Ad-Blocker", "AdGuard Private DNS at OS layer", "🛡️", ACCENT_GREEN),
+        ("Watch Next Carousels", "Preserves dynamic movie rows", "🎬", ACCENT_PURPLE),
+        ("Instant 0.0x Speed", "AppOps background process freeze", "⚡", ACCENT_YELLOW),
+    ]
+
+    for i, (title, desc, icon, col) in enumerate(fc_items):
+        cx = start_x + i * (fc_w + fc_gap)
+        draw_rounded_rect(draw, [cx, fc_y, cx + fc_w, fc_y + fc_h], radius=16, fill=BG_CARD, outline=BORDER_COLOR, width=2)
+        draw_rounded_rect(draw, [cx, fc_y, cx + fc_w, fc_y + 4], radius=2, fill=col)
+        draw.text((cx + 25, fc_y + 25), icon, font=get_font(32, bold=True))
+        draw.text((cx + 75, fc_y + 32), title, fill=TEXT_WHITE, font=get_font(18, bold=True))
+        draw.text((cx + 25, fc_y + 85), desc, fill=TEXT_MUTED, font=get_font(15, bold=False))
+
+    # GitHub url
+    draw.text(((w - 360) // 2, 545), "github.com/NeuroticWriter/UnbloatTV", fill=ACCENT_CYAN, font=get_font(18, mono=True))
+
+    out_path = os.path.join(DOCS_DIR, "social-preview.png")
+    img.save(out_path, "PNG")
+    print(f"Generated: {out_path}")
+
 if __name__ == "__main__":
     generate_banner()
     generate_before_after()
     generate_cli_preview()
+    generate_social_preview()
     print("All UI assets generated successfully!")
