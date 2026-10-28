@@ -15,13 +15,17 @@
 
 ## ✨ Features
 
-- **⚡ Ultra-Minimalist & Fast:** Compiled APK is only **46 KB** in size (vs 240 KB - 530 KB for CleanYourTV and 50+ MB for stock launchers). Launches in `<30ms` and uses `<10 MB RAM`.
+- **⚡ Ultra-Minimalist & Fast:** Compiled APK is only **50 KB** in size (vs 240 KB - 530 KB for CleanYourTV and 50+ MB for stock launchers). Launches in `<30ms` and uses `<10 MB RAM`.
+- **🛸 Futuristic Floating Dock Capsule:** The favorites shelf is housed inside a centered, floating frosted-glass capsule dock with rounded pill ends and subtle translucent rim lighting.
+- **✨ Electric Neon Remote Contour Glow:** Remote focus highlights tiles with an electric neon contour border (Cyan, Emerald, Purple, Sunset, Yellow, Pink) with hardware-accelerated 1.10x elevation.
+- **🌌 Cosmic Nebula Ambient Backlighting:** Deep radial twilight gradient radiating behind the floating dock capsule, fading outward to true deep-space OLED black.
 - **🖼️ Customizable Wallpapers & Liquid Glass:**
   - **Custom Photo Wallpapers:** Use any personal picture or 4K wallpaper from USB flash drives, local storage, or ADB (`/sdcard/wallpaper.jpg`).
   - **System Wallpaper:** Seamlessly integrates with your Android TV system wallpaper.
-  - **Ambient Themes:** Obsidian Glass, Aurora Cosmic Indigo, Cyberpunk Teal, Sunset Dusk, and OLED Pure Black (`#000000`).
+  - **Futuristic Theme Suite:** Nebula Cosmic Blue, Cosmic Violet Ambient, Cyberpunk Neon Matrix, Obsidian Space Glass, Sunset Twilight, and OLED Pure Black (`#000000`).
   - **Adjustable Dimming Filter:** Fine-tune background brightness (0%, 25%, 45%, 65%, 80%) for perfect icon and text legibility.
   - **Card Transparency:** Choose between Frosted Glass (60%), Ultra Glass (30%), or Solid Dark cards.
+- **🏠 Default TV Launcher Switcher:** In-app shortcut to open the official Android Home App settings picker, plus 1-click ADB command instructions to lock DLaunch permanently against OEM ads.
 - **🎨 Custom Accent Colors:** 7 choices (Electric Cyan, Emerald Green, Electric Purple, Sunset Orange, Diamond White, Cyber Yellow, Neon Pink).
 - **📐 Auto-Adjusting Grid Engine:** Dynamically calculates display resolution, density (DPI), and aspect ratio. Automatically configures **4 columns on 720p**, **5 columns on 1080p**, and **6 columns on 4K UHD**, or lock it to 4, 5, or 6 columns via settings.
 - **🏷️ Minimalist Clean Mode:** Toggle app labels on/off for an ultra-clean, icon-only gallery view.

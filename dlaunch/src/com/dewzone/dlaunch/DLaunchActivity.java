@@ -101,7 +101,6 @@ public class DLaunchActivity extends Activity {
         wallpaperDimOverlay = findViewById(R.id.wallpaper_dim_overlay);
         rootLayout = findViewById(R.id.root_layout);
         brandLetter = (TextView) findViewById(R.id.brand_letter);
-        labelFavorites = (TextView) findViewById(R.id.label_favorites);
         labelAllApps = (TextView) findViewById(R.id.label_all_apps);
         btnInputs = findViewById(R.id.btn_inputs);
         btnSettings = findViewById(R.id.btn_settings);
@@ -212,16 +211,22 @@ public class DLaunchActivity extends Activity {
         if (wallpaperView != null) wallpaperView.setVisibility(View.GONE);
         if (wallpaperDimOverlay != null) wallpaperDimOverlay.setVisibility(View.GONE);
         if (rootLayout != null) {
-            if ("aurora".equalsIgnoreCase(theme)) {
+            if ("obsidian".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_obsidian);
+            } else if ("aurora".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_aurora);
             } else if ("cyber".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber);
+            } else if ("neon".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber_neon);
+            } else if ("violet".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_cosmic_violet);
             } else if ("sunset".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_sunset);
             } else if ("oled".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_oled);
             } else {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_obsidian);
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_nebula);
             }
         }
     }
@@ -253,28 +258,28 @@ public class DLaunchActivity extends Activity {
     public static Drawable createTileSelector(float density, int radiusDp, int accentColor, String transparency) {
         int radiusPx = (int) (radiusDp * density);
         int strokeNormalPx = (int) (1 * density);
-        int strokeFocusedPx = (int) (2.5f * density);
+        int strokeFocusedPx = (int) (3f * density); // Bold 3dp electric neon outline
 
         int normalColor;
         if ("solid".equalsIgnoreCase(transparency)) {
             normalColor = Color.parseColor("#141E2E");
         } else if ("ultra".equalsIgnoreCase(transparency)) {
-            normalColor = Color.parseColor("#44141E2E");
+            normalColor = Color.parseColor("#38141E2E");
         } else {
-            normalColor = Color.parseColor("#99141E2E"); // Frosted Glass
+            normalColor = Color.parseColor("#7A141E2E"); // Frosted Glass
         }
 
         GradientDrawable normal = new GradientDrawable();
         normal.setShape(GradientDrawable.RECTANGLE);
         normal.setCornerRadius(radiusPx);
         normal.setColor(normalColor);
-        normal.setStroke(strokeNormalPx, Color.parseColor("#253549"));
+        normal.setStroke(strokeNormalPx, Color.parseColor("#26374D"));
 
         GradientDrawable focused = new GradientDrawable();
         focused.setShape(GradientDrawable.RECTANGLE);
         focused.setCornerRadius(radiusPx);
-        focused.setColor(Color.parseColor("#CC1E2E48"));
-        focused.setStroke(strokeFocusedPx, accentColor);
+        focused.setColor(Color.parseColor("#E6132034"));
+        focused.setStroke(strokeFocusedPx, accentColor); // Electric neon contour!
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_focused}, focused);
@@ -507,18 +512,26 @@ public class DLaunchActivity extends Activity {
 
         float density = getResources().getDisplayMetrics().density;
         LinearLayout.LayoutParams params;
+        int radiusDp;
         if (isFavoriteShelf) {
-            int tileWidth = (int) (180 * density);
+            int tileWidth = (int) (112 * density);
             params = new LinearLayout.LayoutParams(tileWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.setMargins(8, 8, 8, 8);
+            int marginHoriz = (int) (5 * density);
+            int marginVert = (int) (4 * density);
+            params.setMargins(marginHoriz, marginVert, marginHoriz, marginVert);
+            tile.setPadding((int) (10 * density), (int) (8 * density), (int) (10 * density), (int) (8 * density));
+            radiusDp = 22; // Dock squircle
         } else {
             params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
-            params.setMargins(8, 8, 8, 8);
+            int margin = (int) (8 * density);
+            params.setMargins(margin, margin, margin, margin);
+            tile.setPadding((int) (14 * density), (int) (14 * density), (int) (14 * density), (int) (14 * density));
+            radiusDp = prefs.getCardRadius();
         }
         tile.setLayoutParams(params);
 
         // Apply dynamic theme tile selector (accent border, radius, and card transparency)
-        tile.setBackground(createTileSelector(density, prefs.getCardRadius(), prefs.getAccentColor(), prefs.getCardTransparency()));
+        tile.setBackground(createTileSelector(density, radiusDp, prefs.getAccentColor(), prefs.getCardTransparency()));
 
         ImageView iconView = (ImageView) tile.findViewById(R.id.app_icon);
         TextView labelView = (TextView) tile.findViewById(R.id.app_label);
@@ -528,22 +541,37 @@ public class DLaunchActivity extends Activity {
             iconView.setImageDrawable(app.getIcon());
             int w = app.getIcon().getIntrinsicWidth();
             int h = app.getIcon().getIntrinsicHeight();
-            if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
-                // Wide Leanback 16:9 banner
-                iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-                iconView.getLayoutParams().height = (int) (64 * density);
+            if (isFavoriteShelf) {
+                if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
+                    iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+                    iconView.getLayoutParams().height = (int) (48 * density);
+                } else {
+                    int size = (int) (56 * density);
+                    iconView.getLayoutParams().width = size;
+                    iconView.getLayoutParams().height = size;
+                }
             } else {
-                // Standard square app icon
-                int size = (int) (64 * density);
-                iconView.getLayoutParams().width = size;
-                iconView.getLayoutParams().height = size;
+                if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
+                    // Wide Leanback 16:9 banner
+                    iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+                    iconView.getLayoutParams().height = (int) (64 * density);
+                } else {
+                    // Standard square app icon
+                    int size = (int) (64 * density);
+                    iconView.getLayoutParams().width = size;
+                    iconView.getLayoutParams().height = size;
+                }
             }
         }
 
         // App Labels toggle (Show / Hide)
-        if (prefs.isShowLabels()) {
+        if (prefs.isShowLabels() && !isFavoriteShelf) {
             labelView.setVisibility(View.VISIBLE);
             labelView.setText(app.getLabel());
+        } else if (prefs.isShowLabels() && isFavoriteShelf) {
+            labelView.setVisibility(View.VISIBLE);
+            labelView.setText(app.getLabel());
+            labelView.setTextSize(12f);
         } else {
             labelView.setVisibility(View.GONE);
         }
@@ -627,6 +655,24 @@ public class DLaunchActivity extends Activity {
             }
         }
         Toast.makeText(this, "Input switcher not supported on this TV hardware", Toast.LENGTH_SHORT).show();
+    }
+
+    public void openDefaultHomeSettings() {
+        Intent[] homeIntents = new Intent[]{
+                new Intent(Settings.ACTION_HOME_SETTINGS),
+                new Intent("android.settings.MANAGE_DEFAULT_APPS_SETTINGS"),
+                new Intent(Settings.ACTION_SETTINGS)
+        };
+
+        for (Intent intent : homeIntents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+        Toast.makeText(this, "Home settings not directly accessible on this TV", Toast.LENGTH_SHORT).show();
     }
 
     public void showSettingsMenu() {
@@ -817,9 +863,9 @@ public class DLaunchActivity extends Activity {
                 labelView.setSelected(hasFocus); // Enables marquee text scrolling
             }
             if (hasFocus) {
-                v.animate().scaleX(1.09f).scaleY(1.09f).setDuration(120).start();
+                v.animate().scaleX(1.10f).scaleY(1.10f).setDuration(120).start();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    v.setElevation(12f);
+                    v.setElevation(16f);
                 }
             } else {
                 v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start();

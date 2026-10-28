@@ -28,17 +28,18 @@ public class DLaunchSettingsDialog {
         } else if ("custom".equalsIgnoreCase(wpMode)) {
             wpLabel = "Custom Photo";
         } else {
-            wpLabel = "Gradient (" + prefs.getTheme() + ")";
+            wpLabel = "Theme (" + prefs.getTheme() + ")";
         }
 
         String[] menuItems = new String[]{
+            "🏠  Set as Default TV Launcher",
             "🎨  Accent Color",
             "🖼️  Wallpaper & Themes (" + wpLabel + ")",
             "🌘  Wallpaper Dimming (" + prefs.getWallpaperDim() + "%)",
             "🪟  Card Transparency (" + prefs.getCardTransparency() + ")",
             "📐  Grid Layout",
             "🏷️  App Labels (" + (prefs.isShowLabels() ? "Shown" : "Hidden") + ")",
-            "⭐  Favorites Shelf (" + (prefs.isShowFavorites() ? "Shown" : "Hidden") + ")",
+            "⭐  Favorites Dock Capsule (" + (prefs.isShowFavorites() ? "Shown" : "Hidden") + ")",
             "👁️  Hidden Apps (" + prefs.getHiddenApps().size() + " hidden)",
             "⚙️  Android TV System Settings"
         };
@@ -46,6 +47,23 @@ public class DLaunchSettingsDialog {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert);
         builder.setTitle("DLaunch Settings");
         builder.setItems(menuItems, new MainMenuListener(this));
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.show();
+    }
+
+    public void showSetDefaultLauncherDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        builder.setTitle("Set DLaunch as Default Launcher");
+        builder.setMessage(
+                "Choose an option to make DLaunch your main TV home screen:\n\n" +
+                "1. Official Android Settings:\n" +
+                "Tap 'Open Home Settings' below to select DLaunch as your default Home app.\n\n" +
+                "2. 1-Click ADB Lock (Recommended for Google TV):\n" +
+                "If your TV overrides default launcher settings, run this from your computer:\n" +
+                "  ./unbloat.sh --dlaunch\n" +
+                "This removes OEM sponsored ads and permanently locks DLaunch to your remote Home button!"
+        );
+        builder.setPositiveButton("Open Home Settings", new DefaultHomeClickListener(activity));
         builder.setNegativeButton(R.string.dialog_cancel, null);
         builder.show();
     }
@@ -79,10 +97,11 @@ public class DLaunchSettingsDialog {
 
     public void showWallpaperMenu() {
         final String[] names = new String[]{
-            "🌌  Obsidian Glass (Deep Navy Space)",
-            "🔮  Aurora Ambient (Cosmic Indigo)",
-            "💠  Cyber Teal (Midnight Matrix)",
-            "🌅  Sunset Dusk (Crimson Glow)",
+            "🌌  Nebula Cosmic Blue (Futuristic Ambient — Default)",
+            "🔮  Cosmic Violet Ambient",
+            "💠  Cyberpunk Neon Matrix",
+            "🌌  Obsidian Space Glass",
+            "🌅  Sunset Twilight Dusk",
             "⬛  OLED Pure Black (Zero Backlight)",
             "🖼️  Android System Wallpaper",
             "📁  Custom Wallpaper Photo (Storage/USB/ADB)"
@@ -113,7 +132,7 @@ public class DLaunchSettingsDialog {
         final String[] names = new String[]{
             "0%  (Bright / Original Photo)",
             "25% (Light Dim Overlay)",
-            "45% (Balanced Dim - Recommended)",
+            "45% (Balanced Dim — Recommended)",
             "65% (Deep Dark Dim)",
             "80% (Subtle Ambient Glow)"
         };
@@ -128,7 +147,7 @@ public class DLaunchSettingsDialog {
 
     public void showCardTransparencyPicker() {
         final String[] names = new String[]{
-            "🪟  Frosted Glass (60% Opacity - Recommended)",
+            "🪟  Frosted Glass (60% Opacity — Recommended)",
             "💎  Ultra Glass (30% High Transparency)",
             "⬛  Solid Cards (100% Opaque Dark)"
         };
@@ -167,7 +186,7 @@ public class DLaunchSettingsDialog {
     public void toggleFavorites() {
         boolean current = prefs.isShowFavorites();
         prefs.setShowFavorites(!current);
-        Toast.makeText(activity, current ? "Favorites shelf hidden" : "Favorites shelf shown", Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity, current ? "Favorites dock hidden" : "Favorites dock shown", Toast.LENGTH_SHORT).show();
         activity.loadAndDisplayApps();
     }
 
@@ -202,7 +221,19 @@ public class DLaunchSettingsDialog {
         }
     }
 
-    // Static listener classes
+    private static class DefaultHomeClickListener implements DialogInterface.OnClickListener {
+        private final DLaunchActivity activity;
+
+        DefaultHomeClickListener(DLaunchActivity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(DialogInterface d, int which) {
+            activity.openDefaultHomeSettings();
+        }
+    }
+
     private static class MainMenuListener implements DialogInterface.OnClickListener {
         private final DLaunchSettingsDialog dialog;
 
@@ -214,30 +245,33 @@ public class DLaunchSettingsDialog {
         public void onClick(DialogInterface d, int which) {
             switch (which) {
                 case 0:
-                    dialog.showAccentColorPicker();
+                    dialog.showSetDefaultLauncherDialog();
                     break;
                 case 1:
-                    dialog.showWallpaperMenu();
+                    dialog.showAccentColorPicker();
                     break;
                 case 2:
-                    dialog.showDimPicker();
+                    dialog.showWallpaperMenu();
                     break;
                 case 3:
-                    dialog.showCardTransparencyPicker();
+                    dialog.showDimPicker();
                     break;
                 case 4:
-                    dialog.showGridPicker();
+                    dialog.showCardTransparencyPicker();
                     break;
                 case 5:
-                    dialog.toggleLabels();
+                    dialog.showGridPicker();
                     break;
                 case 6:
-                    dialog.toggleFavorites();
+                    dialog.toggleLabels();
                     break;
                 case 7:
-                    dialog.showHiddenAppsDialog();
+                    dialog.toggleFavorites();
                     break;
                 case 8:
+                    dialog.showHiddenAppsDialog();
+                    break;
+                case 9:
                     dialog.launchSystemSettings();
                     break;
             }
@@ -254,42 +288,48 @@ public class DLaunchSettingsDialog {
         @Override
         public void onClick(DialogInterface d, int which) {
             switch (which) {
-                case 0: // Obsidian
+                case 0: // Nebula Cosmic Blue (Futuristic)
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("nebula");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Nebula theme applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1: // Cosmic Violet
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("violet");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Cosmic Violet applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2: // Cyber Neon
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("neon");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Cyber Neon applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 3: // Obsidian Space Glass
                     dialog.prefs.setWallpaperMode("gradient");
                     dialog.prefs.setTheme("obsidian");
                     dialog.activity.applyThemeAndAccent();
                     Toast.makeText(dialog.activity, "Obsidian theme applied", Toast.LENGTH_SHORT).show();
                     break;
-                case 1: // Aurora
-                    dialog.prefs.setWallpaperMode("gradient");
-                    dialog.prefs.setTheme("aurora");
-                    dialog.activity.applyThemeAndAccent();
-                    Toast.makeText(dialog.activity, "Aurora theme applied", Toast.LENGTH_SHORT).show();
-                    break;
-                case 2: // Cyber
-                    dialog.prefs.setWallpaperMode("gradient");
-                    dialog.prefs.setTheme("cyber");
-                    dialog.activity.applyThemeAndAccent();
-                    Toast.makeText(dialog.activity, "Cyber theme applied", Toast.LENGTH_SHORT).show();
-                    break;
-                case 3: // Sunset
+                case 4: // Sunset Twilight
                     dialog.prefs.setWallpaperMode("gradient");
                     dialog.prefs.setTheme("sunset");
                     dialog.activity.applyThemeAndAccent();
                     Toast.makeText(dialog.activity, "Sunset theme applied", Toast.LENGTH_SHORT).show();
                     break;
-                case 4: // OLED Pure Black
+                case 5: // OLED Pure Black
                     dialog.prefs.setWallpaperMode("gradient");
                     dialog.prefs.setTheme("oled");
                     dialog.activity.applyThemeAndAccent();
                     Toast.makeText(dialog.activity, "OLED Pure Black applied", Toast.LENGTH_SHORT).show();
                     break;
-                case 5: // Android System Wallpaper
+                case 6: // Android System Wallpaper
                     dialog.prefs.setWallpaperMode("system");
                     dialog.activity.applyThemeAndAccent();
                     Toast.makeText(dialog.activity, "System wallpaper applied", Toast.LENGTH_SHORT).show();
                     break;
-                case 6: // Custom Wallpaper
+                case 7: // Custom Wallpaper
                     dialog.showCustomWallpaperMenu();
                     break;
             }

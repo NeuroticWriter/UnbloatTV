@@ -43,7 +43,7 @@
 </p>
 
 * **Zero Ads & Zero Telemetry:** Strips out intrusive OEM home screen promos, tracking daemons, and video banner popups.
-* **DLaunch (Auto-Adjusting Minimalist TV Launcher):** Includes our bespoke native Android TV launcher (**46 KB** footprint, <10 MB RAM, <30ms startup). Unlike heavy, rigid launchers that crop or stretch icons, DLaunch's **Auto-Adjusting Grid Engine** dynamically scales columns (4, 5, or 6 columns) for 720p, 1080p, and 4K displays. Features TV remote-friendly personalization (Custom photo wallpapers via USB/ADB/storage, Android system wallpaper, 5 ambient themes, adjustable dimming filter, frosted liquid glass card transparency, customizable accent colors, icon-only clean mode, Favorites dock, and instant TV Inputs drawer).
+* **DLaunch (Auto-Adjusting Minimalist TV Launcher):** Includes our bespoke native Android TV launcher (**50 KB** footprint, <10 MB RAM, <30ms startup). Features a futuristic floating frosted-glass dock capsule, cosmic nebula ambient backlighting, electric neon contour focus glow, customizable photo wallpapers (USB/ADB/storage), system wallpaper binding, adjustable dimming filter, frosted liquid glass cards, in-app default launcher picker, and instant TV Inputs drawer. Auto-adjusts across 720p, 1080p, and 4K displays with zero bloat.
 * **Instant 0.0x / 0.5x Response:** Eliminates UI frame-drops and micro-stutters.
 * **+35% Available RAM:** Frees up critical memory headroom on 1 GB – 1.5 GB smart TVs.
 * **AppOps Background Freeze:** When you press the Home button, background streaming apps are instantly frozen, releasing 100% of CPU and RAM.

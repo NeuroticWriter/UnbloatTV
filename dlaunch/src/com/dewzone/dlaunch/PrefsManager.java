@@ -61,11 +61,11 @@ public class PrefsManager {
             prefs.edit()
                 .putStringSet(KEY_FAVORITES, defaults)
                 .putInt(KEY_ACCENT_COLOR, COLOR_CYAN)
-                .putString(KEY_THEME, "obsidian")
+                .putString(KEY_THEME, "nebula")
                 .putInt(KEY_COLUMNS, 0) // 0 = Auto
                 .putBoolean(KEY_SHOW_LABELS, true)
                 .putBoolean(KEY_SHOW_FAVORITES, true)
-                .putInt(KEY_CARD_RADIUS, 14)
+                .putInt(KEY_CARD_RADIUS, 18)
                 .putBoolean(KEY_INITIALIZED, true)
                 .apply();
         }
@@ -122,7 +122,7 @@ public class PrefsManager {
 
     // --- Theme ---
     public String getTheme() {
-        return prefs.getString(KEY_THEME, "obsidian");
+        return prefs.getString(KEY_THEME, "nebula");
     }
 
     public void setTheme(String theme) {

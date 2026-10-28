@@ -181,30 +181,28 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- FAVORITES SECTION -->
+            <!-- FLOATING GLASS DOCK CAPSULE (FAVORITES) -->
             <LinearLayout
                 android:id="@+id/section_favorites_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="28dp"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
-                <TextView
-                    android:id="@+id/label_favorites"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="@string/section_favorites"
-                    android:textColor="@color/text_accent"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
+                <!-- Floating Glass Capsule Dock -->
                 <HorizontalScrollView
                     android:id="@+id/favorites_scroll"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/bg_dock_capsule"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
                     android:scrollbars="none"
                     android:clipChildren="false"
                     android:clipToPadding="false">
@@ -213,6 +211,7 @@
                         android:id="@+id/favorites_row"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:clipChildren="false"
                         android:clipToPadding="false" />
