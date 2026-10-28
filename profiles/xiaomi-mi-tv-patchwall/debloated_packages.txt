@@ -1,0 +1,8 @@
+com.xiaomi.mitv.upgrade
+com.xiaomi.mitv.advertise
+com.xiaomi.mitv.payment
+com.xiaomi.mitv.shop
+com.xiaomi.devicelist
+com.duokan.videodownloader
+com.xiaomi.mitv.analytics
+com.mitv.tvhome

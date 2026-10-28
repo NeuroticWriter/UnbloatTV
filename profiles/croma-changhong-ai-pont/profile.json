@@ -1,0 +1,16 @@
+{
+  "device": "Changhong AI PONT",
+  "manufacturer": "Changhong",
+  "brand": "CHiQ / Croma",
+  "board": "mt5867",
+  "cpu_abi": "armeabi-v7a",
+  "android_version": "14",
+  "sdk_int": "34",
+  "ram_total": "952672 kB (~950 MB)",
+  "ram_available_after_debloat": "348160 kB (348 MB)",
+  "health_score_before": 48,
+  "health_score_after": 98,
+  "disabled_packages_count": 32,
+  "verified_by": "NeuroticWriter",
+  "notes": "Extreme RAM optimization (+35% available memory pool). Panel backlight driver com.homwee.dynamicbacklight protected."
+}

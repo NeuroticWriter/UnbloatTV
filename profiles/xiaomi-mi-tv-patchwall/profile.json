@@ -1,0 +1,11 @@
+{
+  "device": "Mi TV 4A / 4C / 5X",
+  "manufacturer": "Xiaomi",
+  "brand": "Mi / Redmi",
+  "board": "amlogic / mediatek",
+  "cpu_abi": "armeabi-v7a",
+  "android_version": "9 - 11",
+  "disabled_packages_count": 16,
+  "verified_by": "UnbloatTV Community",
+  "notes": "Removes PatchWall home ads, analytics, and duplicate Mi app store."
+}

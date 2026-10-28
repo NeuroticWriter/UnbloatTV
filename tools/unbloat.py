@@ -669,6 +669,58 @@ def action_install_smarttube(adb: ADB, profiler: TVProfiler):
     except Exception as e:
         print(f"{Colors.RED}Error downloading SmartTube: {e}{Colors.RESET}")
 
+# --- Export Community Profile Engine ---
+def action_export_profile(adb: ADB, profiler: TVProfiler):
+    print(f"\n{Colors.BOLD}{Colors.CYAN}--- Export TV Profile for Community Showcase ---{Colors.RESET}")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    profiles_dir = os.path.join(base_dir, "profiles")
+    os.makedirs(profiles_dir, exist_ok=True)
+    
+    brand = re.sub(r'[^a-zA-Z0-9]+', '-', (profiler.specs.get("brand") or profiler.specs.get("manufacturer") or "generic").lower()).strip('-')
+    model = re.sub(r'[^a-zA-Z0-9]+', '-', (profiler.specs.get("model") or "tv").lower()).strip('-')
+    folder_name = f"{brand}-{model}"
+    target_dir = os.path.join(profiles_dir, folder_name)
+    os.makedirs(target_dir, exist_ok=True)
+    
+    profile_data = {
+        "device": profiler.specs.get("model"),
+        "manufacturer": profiler.specs.get("manufacturer"),
+        "brand": profiler.specs.get("brand"),
+        "board": profiler.specs.get("board"),
+        "cpu_abi": profiler.specs.get("cpu_abi"),
+        "android_version": profiler.specs.get("android_ver"),
+        "sdk_int": profiler.specs.get("sdk_int"),
+        "ram_total": profiler.specs.get("mem_total"),
+        "ram_available": profiler.specs.get("mem_available"),
+        "health_score": profiler.health_score,
+        "disabled_packages_count": len(profiler.disabled_packages),
+        "total_packages_count": len(profiler.installed_packages),
+    }
+    with open(os.path.join(target_dir, "profile.json"), "w", encoding="utf-8") as f:
+        json.dump(profile_data, f, indent=2)
+        
+    with open(os.path.join(target_dir, "debloated_packages.txt"), "w", encoding="utf-8") as f:
+        for pkg in sorted(profiler.disabled_packages):
+            f.write(f"{pkg}\n")
+            
+    readme_content = f"""# {profiler.specs.get('manufacturer')} {profiler.specs.get('model')} ({profiler.specs.get('brand')})
+
+- **Processor / Board:** `{profiler.specs.get('board')}` ({profiler.specs.get('cpu_abi')})
+- **OS Version:** Android TV {profiler.specs.get('android_ver')} (API {profiler.specs.get('sdk_int')})
+- **RAM Pool:** {profiler.specs.get('mem_total')} (Available: {profiler.specs.get('mem_available')})
+- **Health Score:** {profiler.health_score}/100
+- **Total Packages:** {len(profiler.installed_packages)}
+- **Debloated Packages:** {len(profiler.disabled_packages)}
+
+## Verified Safe Debloat List
+See [`debloated_packages.txt`](debloated_packages.txt) for the verified list of safe packages on this model.
+"""
+    with open(os.path.join(target_dir, "README.md"), "w", encoding="utf-8") as f:
+        f.write(readme_content)
+        
+    print(f"  {Colors.GREEN}✓ Profile exported to: profiles/{folder_name}/{Colors.RESET}")
+    print(f"  You can now commit this folder and open a Pull Request on GitHub!")
+
 # --- Comprehensive Factory Restoration Engine ---
 def action_restore(adb: ADB, profiler: TVProfiler, auto_confirm: bool = False):
     print(f"\n{Colors.BOLD}{Colors.YELLOW}┌──────────────────── Factory Restoration & Recovery Engine ────────────────────┐{Colors.RESET}")
@@ -767,6 +819,7 @@ Examples:
     parser.add_argument("--dns", choices=["adguard", "quad9", "off"], help="Configure system-wide Private DNS ad-blocker")
     parser.add_argument("--smarttube", action="store_true", help="Download and install architecture-matched SmartTube")
     parser.add_argument("--restore", action="store_true", help="Restore all disabled packages and reset animation scales")
+    parser.add_argument("--export-profile", action="store_true", help="Export current TV hardware profile to profiles/ for community showcase")
     parser.add_argument("--status", action="store_true", help="Display hardware profile and memory metrics then exit")
 
     args = parser.parse_args()
@@ -785,7 +838,7 @@ Examples:
         profiler.print_summary()
         sys.exit(0)
 
-    has_cli_action = any([args.auto, args.debloat, args.freeze, args.aot, args.dns, args.smarttube, args.restore])
+    has_cli_action = any([args.auto, args.debloat, args.freeze, args.aot, args.dns, args.smarttube, args.restore, args.export_profile])
 
     if has_cli_action:
         profiler.print_summary()
@@ -808,6 +861,8 @@ Examples:
                 action_install_smarttube(adb, profiler)
             if args.restore:
                 action_restore(adb, profiler, auto_confirm=args.yes)
+            if args.export_profile:
+                action_export_profile(adb, profiler)
         sys.exit(0)
 
     # Interactive Loop
@@ -823,9 +878,10 @@ Examples:
         print(f"  {Colors.BOLD}[6]{Colors.RESET} 📺 Install SmartTube (Ad-Free YouTube with SponsorBlock)")
         print(f"  {Colors.BOLD}[7]{Colors.RESET} 🔍 Rescan TV Hardware & Health Score")
         print(f"  {Colors.BOLD}[8]{Colors.RESET} 🔄 Factory Restoration & Safety Recovery")
+        print(f"  {Colors.BOLD}[9]{Colors.RESET} 📤 Export TV Profile (Share with Community)")
         print(f"  {Colors.BOLD}[0]{Colors.RESET} ❌ Exit")
 
-        choice = input(f"\n{Colors.BOLD}Choose an option (0-8): {Colors.RESET}").strip()
+        choice = input(f"\n{Colors.BOLD}Choose an option (0-9): {Colors.RESET}").strip()
         if choice == "1":
             action_debloat(adb, profiler, auto_confirm=True, mode="disable")
             action_extreme_speed(adb, profiler, preset="5")
@@ -836,6 +892,19 @@ Examples:
             action_debloat(adb, profiler)
         elif choice == "3":
             action_extreme_speed(adb, profiler)
+        elif choice == "4":
+            action_aot_compile(adb, profiler)
+        elif choice == "5":
+            action_private_dns(adb)
+        elif choice == "6":
+            action_install_smarttube(adb, profiler)
+        elif choice == "7":
+            profiler.scan()
+            profiler.print_summary()
+        elif choice == "8":
+            action_restore(adb, profiler)
+        elif choice == "9":
+            action_export_profile(adb, profiler)
         elif choice == "4":
             action_aot_compile(adb, profiler)
         elif choice == "5":
