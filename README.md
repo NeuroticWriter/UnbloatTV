@@ -1,46 +1,68 @@
 # 📺 UnbloatTV
 
-<div align="center">
+<p align="center">
+  <a href="https://github.com/NeuroticWriter/UnbloatTV">
+    <img src="docs/banner.png" alt="UnbloatTV - Intelligent Android TV & Google TV Optimizer" width="850">
+  </a>
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![Android TV](https://img.shields.io/badge/Android%20TV-9%20to%2014-green.svg)](https://android.com/tv/)
-[![Google TV](https://img.shields.io/badge/Google%20TV-Compatible-orange.svg)](https://tv.google/)
-[![Windows Compatible](https://img.shields.io/badge/Windows-unbloat.bat-0078D6.svg)]()
-[![Zero Dependencies](https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-brightgreen.svg)]()
-[![Reversible](https://img.shields.io/badge/Safety-100%25%20Reversible-success.svg)]()
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/dewzone)
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square&color=00e5ff&labelColor=171c28" alt="License: MIT"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg?style=flat-square&color=00e676&labelColor=171c28" alt="Python 3.8+"></a>
+  <a href="https://android.com/tv/"><img src="https://img.shields.io/badge/Android%20TV-9%20to%2014-green.svg?style=flat-square&color=69f0ae&labelColor=171c28" alt="Android TV"></a>
+  <a href="https://tv.google/"><img src="https://img.shields.io/badge/Google%20TV-Compatible-orange.svg?style=flat-square&color=ffab40&labelColor=171c28" alt="Google TV"></a>
+  <img src="https://img.shields.io/badge/Windows-unbloat.bat-blue.svg?style=flat-square&color=448aff&labelColor=171c28" alt="Windows Compatible">
+  <img src="https://img.shields.io/badge/Dependencies-Zero%20(Pure%20Python)-brightgreen.svg?style=flat-square&color=00e5ff&labelColor=171c28" alt="Zero Dependencies">
+  <img src="https://img.shields.io/badge/Safety-100%25%20Reversible-success.svg?style=flat-square&color=00e676&labelColor=171c28" alt="100% Reversible">
+  <a href="https://buymeacoffee.com/dewzone"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg?style=flat-square&logo=buy-me-a-coffee&color=ffd54f&labelColor=171c28" alt="Buy Me A Coffee"></a>
+</p>
 
-**The Intelligent, Hardware-Aware Optimizer & Debloater for Android TV & Google TV.**  
-*Turn laggy, stuttering smart TVs into fluid, lightning-fast streaming machines in minutes.*
+<p align="center">
+  <b>The Intelligent, Hardware-Aware Optimizer & Debloater for Android TV & Google TV.</b><br>
+  <i>Turn laggy, stuttering smart TVs into fluid, lightning-fast streaming machines with zero ads.</i>
+</p>
 
-[Quick Start](#-quick-start) • [Disable vs Uninstall](#-choose-your-mode-disable-vs-uninstall) • [Why UnbloatTV?](#-why-unbloat-tv-vs-alternatives) • [Features](#-features) • [CLI Usage](#-command-line-options) • [AI Agent Protocol](#-ai-assistant--agent-prompt) • [Safety Guarantee](#-safety-guarantee)
-
-</div>
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-what-you-get">What You Get</a> •
+  <a href="#-choose-your-mode-disable-vs-uninstall">Disable vs Uninstall</a> •
+  <a href="#-why-unbloat-tv-vs-alternatives">Comparison</a> •
+  <a href="#-interactive-cli-experience">Terminal Preview</a> •
+  <a href="#-ai-assistant--agent-prompt">AI Agent Protocol</a> •
+  <a href="#-support--donations">Support & Donate</a>
+</p>
 
 ---
 
-```
-  ██╗   ██╗███╗   ██╗██████╗ ██╗      ██████╗  █████╗ ████████╗████████╗██╗   ██╗
-  ██║   ██║████╗  ██║██╔══██╗██║     ██╔═══██╗██╔══██╗╚══██╔══╝╚══██╔══╝██║   ██║
-  ██║   ██║██╔██╗ ██║██████╔╝██║     ██║   ██║███████║   ██║      ██║   ██║   ██║
-  ██║   ██║██║╚██╗██║██╔══██╗██║     ██║   ██║██╔══██║   ██║      ██║   ╚██╗ ██╔╝
-  ╚██████╔╝██║ ╚████║██████╔╝███████╗╚██████╔╝██║  ██║   ██║      ██║    ╚████╔╝ 
-   ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝     ╚═══╝  
-        Intelligent Hardware-Aware Optimizer & Debloater for Android & Google TV
-```
+## 🌟 What You Get
 
-## 💡 The Problem with Modern Smart TVs
+<p align="center">
+  <img src="docs/tv-showcase.jpg" alt="UnbloatTV Liquid Glass Home Screen with Watch Next" width="850">
+</p>
 
-Most budget and mid-range Android & Google TVs (Croma, Xiaomi, TCL, Hisense, OnePlus, Realme, and even Chromecast dongles) ship with **1 GB to 1.5 GB of RAM** and entry-level quad-core ARM processors. 
+* **Zero Ads & Zero Telemetry:** Strips out intrusive OEM home screen promos, tracking daemons, and video banner popups.
+* **Preserved "Watch Next" Carousels:** Unlike basic debloaters that force a flat, boring app grid, UnbloatTV pairs with **Projectivy Launcher** to give you dynamic movie and show recommendations from Disney+, Netflix, Prime Video, and SmartTube.
+* **Instant 0.0x / 0.5x Response:** Eliminates UI frame-drops and micro-stutters.
+* **+35% Available RAM:** Frees up critical memory headroom on 1 GB – 1.5 GB smart TVs.
+* **AppOps Background Freeze:** When you press the Home button, background streaming apps are instantly frozen, releasing 100% of CPU and RAM.
 
-Out of the box, they are overwhelmed by:
-1. **Manufacturer Bloatware:** Hidden background services, analytics, crash dumpers, and duplicate OEM app stores.
-2. **Aggressive Google TV Ads & Promos:** Heavy video preview carousels constantly buffering in background RAM.
-3. **Runaway Background Streaming Apps:** Apps like Hotstar, Prime Video, Netflix, and SonyLIV continue executing in the background after you return home, consuming up to 70% of remaining RAM.
-4. **JIT Compilation Jitter:** Bytecode interpretation creates micro-stutters during menu navigation.
+---
 
-**UnbloatTV** solves this intelligently by analyzing your specific TV hardware (SoC architecture, memory pool, and installed brand packages) and applying surgical, customizable, and non-destructive optimizations.
+## 📊 Real-World Hardware Benchmarks
+
+<p align="center">
+  <img src="docs/before-after.png" alt="Side-by-Side Comparison Before and After UnbloatTV" width="850">
+</p>
+
+---
+
+## 💻 Interactive CLI Experience
+
+<p align="center">
+  <img src="docs/cli-preview.png" alt="UnbloatTV Interactive Terminal Experience with Health Score" width="850">
+</p>
+
+UnbloatTV scans your TV hardware via ADB over local Wi-Fi, computes a **Real-Time Health & Performance Score (0–100)**, identifies hardware bottlenecks, and gives you total control over what to optimize.
 
 ---
 
@@ -64,11 +86,11 @@ UnbloatTV puts you in complete control. Whenever you debloat, you can choose bet
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Every action automatically saves a timestamped JSON snapshot in `./backups/` so you can restore your original setup anytime!
+> **Automated Safety Snapshots:** Every optimization automatically creates a timestamped JSON backup in `./backups/unbloat_backup_<device>_<timestamp>.json` so you can revert your TV to its original factory state with one click.
 
 ---
 
-## 🥊 Why UnbloatTV vs. Alternatives?
+## 🥊 Why UnbloatTV vs. CleanYourTV?
 
 | Feature | **UnbloatTV** | **CleanYourTV** | **Generic ADB Scripts** |
 | :--- | :---: | :---: | :---: |
@@ -82,30 +104,9 @@ Every action automatically saves a timestamped JSON snapshot in `./backups/` so 
 | **Zero-RAM AdGuard Private DNS** | 🛡️ **1-Click System-Wide** | ❌ No | ⚠️ Manual shell command |
 | **Architecture-Matched SmartTube** | 📺 **Auto-fetches armeabi-v7a / arm64-v8a** | ❌ No | ❌ Manual sideload |
 | **Safety Snapshots & Restore** | 🔒 **Auto-backup manifest + 1-Click Restore** | ❌ No backups | ⚠️ Risk of bootloop |
-| **Cross-Platform Launchers** | 💻 **macOS/Linux (.sh) + Windows (.bat)** | ⚠️ Bash only | ⚠️ Varies |
+| **Cross-Platform Launchers** | 💻 **macOS/Linux (`.sh`) + Windows (`.bat`)** | ⚠️ Bash only | ⚠️ Varies |
 | **External Dependencies** | 🟢 **Zero** (Pure Python 3 stdlib) | ⚠️ Node / Bash / Curl | ⚠️ Varies |
 | **AI Agent Support** | 🤖 **Built-in `PROMPT.md` Protocol** | ⚠️ Generic prompt | ❌ None |
-
----
-
-## ✨ Features
-
-- 🔍 **Hardware & Memory Scanner:** Automatically inspects your TV's SoC (Mediatek, Amlogic, Realtek, Qualcomm), CPU ABI (`armeabi-v7a` or `arm64-v8a`), total physical RAM, available memory, and disabled package list.
-- 📊 **Intelligent Health Score (0-100):** Evaluates system bottlenecks in real-time (RAM strain, active background bloatware count, animation speeds, and Wi-Fi scanning latency spikes).
-- 🧹 **Granular Package Selection:**
-  - **All Recommended:** 1-click clean of all verified bloatware.
-  - **By Category:** Filter by Telemetry, Ads, OEM Stores, Utilities, or Media.
-  - **Custom Range:** Toggle specific packages with simple number inputs (e.g. `1, 3, 5-8`).
-- ⚡ **Extreme Speed Preset:** Sets UI animation scales to `0.0x` (instant touch/remote response) or `0.5x` (liquid glass motion) and forces full 2D GPU hardware acceleration.
-- ❄️ **AppOps Background Freeze:** Configures `cmd appops set <pkg> RUN_IN_BACKGROUND ignore` on heavy streaming apps (Hotstar, Netflix, Amazon Prime, SonyLIV, Zee5, MX Player). When you press the Home button, apps immediately release CPU/RAM!
-- 🏎️ **Ahead-Of-Time (AOT) Compilation:** Compiles high-priority TV apps directly into native ARM machine code using Android's `dex2oat` compiler (`cmd package compile -m speed`), eliminating startup lag.
-- 🛡️ **System-Wide Ad-Blocking (0 MB RAM):** Enables encrypted Private DNS (AdGuard / Quad9) natively at the Android OS layer. Blocks banner ads and telemetry tracking across the entire TV without running heavy VPN background apps.
-- 📺 **SmartTube Installer:** Auto-detects whether your TV runs 32-bit or 64-bit ARM, fetches the latest official release from GitHub, installs it via ADB, and pre-compiles it with AOT speed optimization.
-- 🔄 **Advanced Factory Restoration:**
-  - Re-enable all disabled packages (`pm enable`).
-  - Re-install user uninstalled packages (`cmd package install-existing`).
-  - Restore state from any saved JSON snapshot file.
-  - Reset animations and GPU compositions back to factory default.
 
 ---
 
@@ -128,59 +129,19 @@ Every action automatically saves a timestamped JSON snapshot in `./backups/` so 
 
 ### 2. Run UnbloatTV
 
-#### On macOS & Linux (One-Liner):
-```bash
-curl -sSL https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.sh | bash
-```
-
-#### On Windows:
-Double-click `unbloat.bat` or run:
-```cmd
-git clone https://github.com/NeuroticWriter/UnbloatTV.git
-cd UnbloatTV
-unbloat.bat
-```
-
-#### On Any System via Python:
-```bash
-python3 unbloat.py
-```
+| Your Platform | How to Run |
+| :--- | :--- |
+| **macOS & Linux (1-Liner)** | `curl -sSL https://raw.githubusercontent.com/NeuroticWriter/UnbloatTV/main/unbloat.sh \| bash` |
+| **Windows** | Double-click `unbloat.bat` or run `.\unbloat.bat` in CMD / PowerShell |
+| **Any Platform via Python** | `git clone https://github.com/NeuroticWriter/UnbloatTV.git`<br>`cd UnbloatTV && python3 unbloat.py` |
 
 *When prompted on your TV screen, check **"Always allow from this computer"** and select **OK**.*
 
 ---
 
-## 💻 Command-Line Options
+## 💻 Command-Line Usage
 
-UnbloatTV can be used either as an interactive terminal UI or in headless/automated scripts:
-
-```
-usage: unbloat.py [-h] [-d DEVICE] [-y] [--auto] [--debloat]
-                  [--mode {disable,uninstall}]
-                  [--category {telemetry,ads,oem_store,utility,all}]
-                  [--freeze] [--aot] [--dns {adguard,quad9,off}] [--smarttube]
-                  [--restore] [--status]
-
-options:
-  -h, --help            Show this help message and exit
-  -d, --device DEVICE   Target TV IP address (e.g. 192.168.1.50) or ADB serial
-  -y, --yes             Skip confirmation prompts (auto-confirm)
-  --auto                Execute complete optimization (Debloat + Freeze + AOT + DNS)
-  --debloat             Disable brand bloatware and background telemetry
-  --mode {disable,uninstall}
-                        Debloat operation mode: 'disable' (safe) or 'uninstall' (user 0)
-  --category {telemetry,ads,oem_store,utility,all}
-                        Filter bloatware by category
-  --freeze              Freeze background streaming apps and boost GPU rendering
-  --aot                 Pre-compile installed apps to native ARM machine code
-  --dns {adguard,quad9,off}
-                        Configure system-wide Private DNS ad-blocker
-  --smarttube           Download and install architecture-matched SmartTube APK
-  --restore             Restore all disabled packages and reset animation scales
-  --status              Display hardware profile, Health Score, and memory metrics then exit
-```
-
-### Examples
+UnbloatTV can be used interactively or in automated CI/CD and AI scripts:
 
 ```bash
 # Check TV hardware specifications and Health Score
@@ -189,60 +150,69 @@ python3 unbloat.py --status
 # Full 1-Click Safe Optimization (Debloat + Freeze + AOT + AdGuard DNS)
 python3 unbloat.py --auto -y
 
-# Deep uninstall telemetry and ads for User 0
+# Debloat specific category with safe disable mode
+python3 unbloat.py --debloat --mode disable --category telemetry -y
+
+# Deep user uninstall for OEM ads and duplicate stores
 python3 unbloat.py --debloat --mode uninstall --category ads -y
 
-# Connect directly to a specific TV IP
+# Connect directly to a specific TV IP address
 python3 unbloat.py -d 192.168.1.50:5555 --auto -y
 
-# Factory restore all packages and settings
+# 1-Click Factory Restoration
 python3 unbloat.py --restore -y
 ```
 
 ---
 
-## 🤖 AI Assistant & Agent Prompt
+## 🤖 AI Assistant & Agent Protocol
 
-Are you using an autonomous AI coding agent like **Claude Code**, **Gemini CLI**, **Antigravity**, **Cursor**, or **GitHub Copilot**?
+Using an autonomous AI coding assistant like **Claude Code**, **Gemini CLI**, **Antigravity**, **Cursor**, or **GitHub Copilot**?
 
-UnbloatTV includes a dedicated [`PROMPT.md`](PROMPT.md) protocol file. You can simply feed it to your AI:
+UnbloatTV includes a dedicated [`PROMPT.md`](PROMPT.md) protocol. Simply instruct your AI agent:
 
 ```markdown
-Run the UnbloatTV protocol in PROMPT.md to inspect my connected Android TV and apply optimal hardware tuning.
+Run the UnbloatTV protocol in PROMPT.md to inspect my connected TV and apply hardware-aware optimization.
 ```
 
-Your AI assistant will autonomously scan your device, identify hardware bottlenecks, avoid critical system HALs, and optimize your TV safely.
+The agent will autonomously connect over ADB, calculate the health score, freeze background hogs, and safely speed up your TV.
 
 ---
 
-## 🎨 Recommended UI: The Liquid Glass Setup
+## ❓ Frequently Asked Questions
 
-For the ultimate TV experience, combine UnbloatTV with **Projectivy Launcher**:
+<details>
+<summary><b>Will this work on my specific TV brand?</b></summary>
+<br>
+Yes. UnbloatTV works across all Android TV, Google TV, and Fire OS devices, including Sony, TCL, Hisense, Xiaomi, Redmi, Croma, OnePlus, Realme, Philips, Motorola, Vu, and Chromecast with Google TV. It dynamically discovers installed packages and never executes blind commands.
+</details>
 
-1. **Install Projectivy Launcher** from the Google Play Store on your TV.
-2. Enable Projectivy Launcher's Accessibility Service:
-   ```bash
-   adb shell settings put secure enabled_accessibility_services com.spocky.projengmenu/.services.AccessibilityService
-   adb shell settings put secure accessibility_enabled 1
-   ```
-3. Disable the laggy stock Google TV launcher:
-   ```bash
-   adb shell pm disable-user --user 0 com.google.android.apps.tv.launcherx
-   ```
-4. In Projectivy settings:
-   - Enable **Dynamic 4K Backdrops** with Reddit / Unsplash feeds.
-   - Configure **Rounded Cards** and enable **Watch Next / Android TV Channels**.
-   - Your TV will now launch instantly, display movie recommendations, and consume ~150 MB less RAM than stock Google TV!
+<details>
+<summary><b>Can this brick my TV?</b></summary>
+<br>
+No. Critical hardware drivers (screen backlight, HDMI input switchers, Bluetooth remote pairing, Dolby audio, Wi-Fi, and Google Play Services) are locked in an unbypassable whitelist (`PROTECTED_PACKAGES`). Furthermore, UnbloatTV uses non-destructive Android switches (`pm disable-user --user 0`) rather than root-level flash modifications.
+</details>
 
----
+<details>
+<summary><b>Does it remove ads inside YouTube?</b></summary>
+<br>
+Yes! UnbloatTV features an automated SmartTube installer. It detects whether your TV has a 32-bit or 64-bit ARM CPU, installs the architecture-matched official SmartTube APK, pre-compiles it with AOT speed optimization, and provides 4K HDR ad-free playback with SponsorBlock.
+</details>
 
-## 🛡️ Safety Guarantee
+<details>
+<summary><b>What is the difference between Safe Disable and Deep Uninstall?</b></summary>
+<br>
+<b>Safe Disable:</b> Completely halts the background process and frees 100% of RAM/CPU, but keeps the APK inside the read-only /system partition. It can be re-enabled in 1 second.<br>
+<b>Deep Uninstall:</b> Uninstalls the package for User 0 and clears app cache, freeing internal flash storage space in addition to RAM. The factory ROM APK remains untouched and can be re-registered with <code>cmd package install-existing</code>.
+</details>
 
-UnbloatTV is engineered from the ground up for maximum safety:
-
-- **Unbypassable System Whitelist:** Critical system packages (System UI, Settings, Package Installer, Dolby Audio, Bluetooth, Remote pairing services, and Mediatek panel backlight drivers) are hardcoded in `PROTECTED_PACKAGES` and can never be disabled or uninstalled.
-- **Automated Safety Snapshots:** A JSON manifest of your installed and disabled package states is saved to `./backups/` before any changes are written.
-- **100% Reversible:** Running `python3 unbloat.py --restore` instantly re-enables all packages or re-registers uninstalled packages via `cmd package install-existing`.
+<details>
+<summary><b>How do I restore my TV back to factory default?</b></summary>
+<br>
+Simply launch UnbloatTV and select <code>[8] Factory Restoration & Safety Recovery</code>, or run:
+<pre>python3 unbloat.py --restore -y</pre>
+All disabled packages are re-enabled, user uninstalled packages are re-registered, and animation scales are reset back to 1.0x with zero data loss.
+</details>
 
 ---
 
@@ -256,6 +226,8 @@ UnbloatTV is 100% free, open-source, and independently maintained. If it sped up
   <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="52" width="200">
 </a>
 
+<br><br>
+
 [![Buy Me A Coffee](https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-yellow.svg?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/dewzone)
 
 </div>
@@ -264,9 +236,9 @@ UnbloatTV is 100% free, open-source, and independently maintained. If it sped up
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you know of bloatware packages for specific TV manufacturers (Vu, Toshiba, Sharp, Philips, Motorola, etc.):
+Contributions are welcome! If you have bloatware package IDs for other TV manufacturers:
 1. Fork this repository.
-2. Add the package IDs and descriptions to `BLOAT_DATABASE` in `unbloat.py`.
+2. Add the package identifiers and descriptions to `BLOAT_DATABASE` in `unbloat.py`.
 3. Submit a Pull Request.
 
 ---
