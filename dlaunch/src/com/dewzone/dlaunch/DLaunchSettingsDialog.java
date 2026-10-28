@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 import android.widget.Toast;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,9 +21,21 @@ public class DLaunchSettingsDialog {
     }
 
     public void showMainMenu() {
+        String wpMode = prefs.getWallpaperMode();
+        String wpLabel;
+        if ("system".equalsIgnoreCase(wpMode)) {
+            wpLabel = "System Wallpaper";
+        } else if ("custom".equalsIgnoreCase(wpMode)) {
+            wpLabel = "Custom Photo";
+        } else {
+            wpLabel = "Gradient (" + prefs.getTheme() + ")";
+        }
+
         String[] menuItems = new String[]{
             "🎨  Accent Color",
-            "🌌  Wallpaper Theme",
+            "🖼️  Wallpaper & Themes (" + wpLabel + ")",
+            "🌘  Wallpaper Dimming (" + prefs.getWallpaperDim() + "%)",
+            "🪟  Card Transparency (" + prefs.getCardTransparency() + ")",
             "📐  Grid Layout",
             "🏷️  App Labels (" + (prefs.isShowLabels() ? "Shown" : "Hidden") + ")",
             "⭐  Favorites Shelf (" + (prefs.isShowFavorites() ? "Shown" : "Hidden") + ")",
@@ -64,25 +77,66 @@ public class DLaunchSettingsDialog {
         builder.show();
     }
 
-    public void showThemePicker() {
+    public void showWallpaperMenu() {
         final String[] names = new String[]{
-            "🌌  Obsidian Glass (Deep Navy)",
+            "🌌  Obsidian Glass (Deep Navy Space)",
             "🔮  Aurora Ambient (Cosmic Indigo)",
             "💠  Cyber Teal (Midnight Matrix)",
             "🌅  Sunset Dusk (Crimson Glow)",
-            "⬛  OLED Pure Black (Zero Backlight)"
-        };
-        final String[] keys = new String[]{
-            "obsidian",
-            "aurora",
-            "cyber",
-            "sunset",
-            "oled"
+            "⬛  OLED Pure Black (Zero Backlight)",
+            "🖼️  Android System Wallpaper",
+            "📁  Custom Wallpaper Photo (Storage/USB/ADB)"
         };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert);
-        builder.setTitle("Select Wallpaper Theme");
-        builder.setItems(names, new ThemeListener(this, keys));
+        builder.setTitle("Wallpaper & Themes");
+        builder.setItems(names, new WallpaperMenuListener(this));
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.show();
+    }
+
+    public void showCustomWallpaperMenu() {
+        final String[] names = new String[]{
+            "📁  Select Photo with File/Gallery App",
+            "🔍  Auto-Detect /sdcard/wallpaper.jpg",
+            "ℹ️  How to Add Wallpapers via USB / ADB"
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        builder.setTitle("Custom Wallpaper Photo");
+        builder.setItems(names, new CustomWallpaperListener(this));
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.show();
+    }
+
+    public void showDimPicker() {
+        final String[] names = new String[]{
+            "0%  (Bright / Original Photo)",
+            "25% (Light Dim Overlay)",
+            "45% (Balanced Dim - Recommended)",
+            "65% (Deep Dark Dim)",
+            "80% (Subtle Ambient Glow)"
+        };
+        final int[] values = new int[]{0, 25, 45, 65, 80};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        builder.setTitle("Wallpaper Dim Filter (Readability)");
+        builder.setItems(names, new DimListener(this, values));
+        builder.setNegativeButton(R.string.dialog_cancel, null);
+        builder.show();
+    }
+
+    public void showCardTransparencyPicker() {
+        final String[] names = new String[]{
+            "🪟  Frosted Glass (60% Opacity - Recommended)",
+            "💎  Ultra Glass (30% High Transparency)",
+            "⬛  Solid Cards (100% Opaque Dark)"
+        };
+        final String[] values = new String[]{"glass", "ultra", "solid"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        builder.setTitle("Card Style & Transparency");
+        builder.setItems(names, new TransparencyListener(this, values));
         builder.setNegativeButton(R.string.dialog_cancel, null);
         builder.show();
     }
@@ -148,6 +202,7 @@ public class DLaunchSettingsDialog {
         }
     }
 
+    // Static listener classes
     private static class MainMenuListener implements DialogInterface.OnClickListener {
         private final DLaunchSettingsDialog dialog;
 
@@ -162,23 +217,138 @@ public class DLaunchSettingsDialog {
                     dialog.showAccentColorPicker();
                     break;
                 case 1:
-                    dialog.showThemePicker();
+                    dialog.showWallpaperMenu();
                     break;
                 case 2:
-                    dialog.showGridPicker();
+                    dialog.showDimPicker();
                     break;
                 case 3:
-                    dialog.toggleLabels();
+                    dialog.showCardTransparencyPicker();
                     break;
                 case 4:
-                    dialog.toggleFavorites();
+                    dialog.showGridPicker();
                     break;
                 case 5:
-                    dialog.showHiddenAppsDialog();
+                    dialog.toggleLabels();
                     break;
                 case 6:
+                    dialog.toggleFavorites();
+                    break;
+                case 7:
+                    dialog.showHiddenAppsDialog();
+                    break;
+                case 8:
                     dialog.launchSystemSettings();
                     break;
+            }
+        }
+    }
+
+    private static class WallpaperMenuListener implements DialogInterface.OnClickListener {
+        private final DLaunchSettingsDialog dialog;
+
+        WallpaperMenuListener(DLaunchSettingsDialog dialog) {
+            this.dialog = dialog;
+        }
+
+        @Override
+        public void onClick(DialogInterface d, int which) {
+            switch (which) {
+                case 0: // Obsidian
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("obsidian");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Obsidian theme applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1: // Aurora
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("aurora");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Aurora theme applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2: // Cyber
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("cyber");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Cyber theme applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 3: // Sunset
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("sunset");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "Sunset theme applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 4: // OLED Pure Black
+                    dialog.prefs.setWallpaperMode("gradient");
+                    dialog.prefs.setTheme("oled");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "OLED Pure Black applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 5: // Android System Wallpaper
+                    dialog.prefs.setWallpaperMode("system");
+                    dialog.activity.applyThemeAndAccent();
+                    Toast.makeText(dialog.activity, "System wallpaper applied", Toast.LENGTH_SHORT).show();
+                    break;
+                case 6: // Custom Wallpaper
+                    dialog.showCustomWallpaperMenu();
+                    break;
+            }
+        }
+    }
+
+    private static class CustomWallpaperListener implements DialogInterface.OnClickListener {
+        private final DLaunchSettingsDialog dialog;
+
+        CustomWallpaperListener(DLaunchSettingsDialog dialog) {
+            this.dialog = dialog;
+        }
+
+        @Override
+        public void onClick(DialogInterface d, int which) {
+            if (which == 0) {
+                dialog.activity.pickCustomWallpaper();
+            } else if (which == 1) {
+                dialog.activity.autoDetectWallpaper();
+            } else if (which == 2) {
+                dialog.activity.showWallpaperInstructions();
+            }
+        }
+    }
+
+    private static class DimListener implements DialogInterface.OnClickListener {
+        private final DLaunchSettingsDialog dialog;
+        private final int[] values;
+
+        DimListener(DLaunchSettingsDialog dialog, int[] values) {
+            this.dialog = dialog;
+            this.values = values;
+        }
+
+        @Override
+        public void onClick(DialogInterface d, int which) {
+            if (which >= 0 && which < values.length) {
+                dialog.prefs.setWallpaperDim(values[which]);
+                dialog.activity.applyThemeAndAccent();
+                Toast.makeText(dialog.activity, "Wallpaper dimming set to " + values[which] + "%", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private static class TransparencyListener implements DialogInterface.OnClickListener {
+        private final DLaunchSettingsDialog dialog;
+        private final String[] values;
+
+        TransparencyListener(DLaunchSettingsDialog dialog, String[] values) {
+            this.dialog = dialog;
+            this.values = values;
+        }
+
+        @Override
+        public void onClick(DialogInterface d, int which) {
+            if (which >= 0 && which < values.length) {
+                dialog.prefs.setCardTransparency(values[which]);
+                dialog.activity.loadAndDisplayApps();
+                Toast.makeText(dialog.activity, "Card style updated", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -199,25 +369,6 @@ public class DLaunchSettingsDialog {
                 dialog.activity.applyThemeAndAccent();
                 dialog.activity.loadAndDisplayApps();
                 Toast.makeText(dialog.activity, "Accent color applied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private static class ThemeListener implements DialogInterface.OnClickListener {
-        private final DLaunchSettingsDialog dialog;
-        private final String[] keys;
-
-        ThemeListener(DLaunchSettingsDialog dialog, String[] keys) {
-            this.dialog = dialog;
-            this.keys = keys;
-        }
-
-        @Override
-        public void onClick(DialogInterface d, int which) {
-            if (which >= 0 && which < keys.length) {
-                dialog.prefs.setTheme(keys[which]);
-                dialog.activity.applyThemeAndAccent();
-                Toast.makeText(dialog.activity, "Theme updated", Toast.LENGTH_SHORT).show();
             }
         }
     }

@@ -19,6 +19,9 @@ public class PrefsManager {
     private static final String KEY_SHOW_LABELS = "key_show_labels";
     private static final String KEY_SHOW_FAVORITES = "key_show_favorites";
     private static final String KEY_CARD_RADIUS = "key_card_radius";
+    private static final String KEY_WALLPAPER_MODE = "key_wallpaper_mode";
+    private static final String KEY_WALLPAPER_DIM = "key_wallpaper_dim";
+    private static final String KEY_CARD_TRANSPARENCY = "key_card_transparency";
 
     // Default accent colors
     public static final int COLOR_CYAN = Color.parseColor("#00E5FF");
@@ -160,5 +163,32 @@ public class PrefsManager {
 
     public void setCardRadius(int radiusDp) {
         prefs.edit().putInt(KEY_CARD_RADIUS, radiusDp).apply();
+    }
+
+    // --- Wallpaper Mode ("gradient", "system", "custom") ---
+    public String getWallpaperMode() {
+        return prefs.getString(KEY_WALLPAPER_MODE, "gradient");
+    }
+
+    public void setWallpaperMode(String mode) {
+        prefs.edit().putString(KEY_WALLPAPER_MODE, mode).apply();
+    }
+
+    // --- Wallpaper Dim Overlay (0, 25, 45, 65, 80 percent) ---
+    public int getWallpaperDim() {
+        return prefs.getInt(KEY_WALLPAPER_DIM, 45);
+    }
+
+    public void setWallpaperDim(int percent) {
+        prefs.edit().putInt(KEY_WALLPAPER_DIM, percent).apply();
+    }
+
+    // --- Card Transparency ("solid", "glass", "ultra") ---
+    public String getCardTransparency() {
+        return prefs.getString(KEY_CARD_TRANSPARENCY, "glass");
+    }
+
+    public void setCardTransparency(String style) {
+        prefs.edit().putString(KEY_CARD_TRANSPARENCY, style).apply();
     }
 }

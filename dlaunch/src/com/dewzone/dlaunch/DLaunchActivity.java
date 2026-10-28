@@ -2,12 +2,15 @@ package com.dewzone.dlaunch;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -27,6 +30,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,10 +46,14 @@ import java.util.Map;
 
 public class DLaunchActivity extends Activity {
 
+    public static final int REQUEST_PICK_WALLPAPER = 1001;
+
     public PrefsManager prefs;
     private final List<AppItem> allApps = new ArrayList<AppItem>();
     private final List<AppItem> favoriteApps = new ArrayList<AppItem>();
 
+    private ImageView wallpaperView;
+    private View wallpaperDimOverlay;
     private View rootLayout;
     private TextView brandLetter;
     private TextView labelFavorites;
@@ -86,6 +97,8 @@ public class DLaunchActivity extends Activity {
     }
 
     private void initViews() {
+        wallpaperView = (ImageView) findViewById(R.id.wallpaper_view);
+        wallpaperDimOverlay = findViewById(R.id.wallpaper_dim_overlay);
         rootLayout = findViewById(R.id.root_layout);
         brandLetter = (TextView) findViewById(R.id.brand_letter);
         labelFavorites = (TextView) findViewById(R.id.label_favorites);
@@ -132,20 +145,38 @@ public class DLaunchActivity extends Activity {
     public void applyThemeAndAccent() {
         int accentColor = prefs.getAccentColor();
         String theme = prefs.getTheme();
+        String wpMode = prefs.getWallpaperMode();
+        int dimPercent = prefs.getWallpaperDim();
 
-        // 1. Wallpaper Theme
-        if (rootLayout != null) {
-            if ("aurora".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_aurora);
-            } else if ("cyber".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber);
-            } else if ("sunset".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_sunset);
-            } else if ("oled".equalsIgnoreCase(theme)) {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_oled);
-            } else {
-                rootLayout.setBackgroundResource(R.drawable.bg_theme_obsidian);
+        // 1. Wallpaper Handling
+        if ("system".equalsIgnoreCase(wpMode)) {
+            try {
+                WallpaperManager wm = WallpaperManager.getInstance(this);
+                Drawable wp = wm.getDrawable();
+                if (wp != null && wallpaperView != null) {
+                    wallpaperView.setImageDrawable(wp);
+                    wallpaperView.setVisibility(View.VISIBLE);
+                    applyDimOverlay(dimPercent);
+                    if (rootLayout != null) rootLayout.setBackgroundColor(Color.TRANSPARENT);
+                } else {
+                    applyGradientTheme(theme);
+                }
+            } catch (Throwable t) {
+                applyGradientTheme(theme);
             }
+        } else if ("custom".equalsIgnoreCase(wpMode)) {
+            File customWpFile = getCustomWallpaperFile();
+            Bitmap b = loadWallpaperBitmap(customWpFile);
+            if (b != null && wallpaperView != null) {
+                wallpaperView.setImageBitmap(b);
+                wallpaperView.setVisibility(View.VISIBLE);
+                applyDimOverlay(dimPercent);
+                if (rootLayout != null) rootLayout.setBackgroundColor(Color.TRANSPARENT);
+            } else {
+                applyGradientTheme(theme);
+            }
+        } else {
+            applyGradientTheme(theme);
         }
 
         // 2. Brand & Header Accents
@@ -163,6 +194,35 @@ public class DLaunchActivity extends Activity {
         }
         if (btnSettings != null) {
             btnSettings.setBackground(createPillSelector(density, accentColor));
+        }
+    }
+
+    private void applyDimOverlay(int dimPercent) {
+        if (wallpaperDimOverlay == null) return;
+        if (dimPercent <= 0) {
+            wallpaperDimOverlay.setVisibility(View.GONE);
+        } else {
+            wallpaperDimOverlay.setVisibility(View.VISIBLE);
+            int alpha = (int) (dimPercent * 2.55f);
+            wallpaperDimOverlay.setBackgroundColor(Color.argb(alpha, 0, 0, 0));
+        }
+    }
+
+    private void applyGradientTheme(String theme) {
+        if (wallpaperView != null) wallpaperView.setVisibility(View.GONE);
+        if (wallpaperDimOverlay != null) wallpaperDimOverlay.setVisibility(View.GONE);
+        if (rootLayout != null) {
+            if ("aurora".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_aurora);
+            } else if ("cyber".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber);
+            } else if ("sunset".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_sunset);
+            } else if ("oled".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_oled);
+            } else {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_obsidian);
+            }
         }
     }
 
@@ -190,21 +250,30 @@ public class DLaunchActivity extends Activity {
         return states;
     }
 
-    public static Drawable createTileSelector(float density, int radiusDp, int accentColor) {
+    public static Drawable createTileSelector(float density, int radiusDp, int accentColor, String transparency) {
         int radiusPx = (int) (radiusDp * density);
         int strokeNormalPx = (int) (1 * density);
         int strokeFocusedPx = (int) (2.5f * density);
 
+        int normalColor;
+        if ("solid".equalsIgnoreCase(transparency)) {
+            normalColor = Color.parseColor("#141E2E");
+        } else if ("ultra".equalsIgnoreCase(transparency)) {
+            normalColor = Color.parseColor("#44141E2E");
+        } else {
+            normalColor = Color.parseColor("#99141E2E"); // Frosted Glass
+        }
+
         GradientDrawable normal = new GradientDrawable();
         normal.setShape(GradientDrawable.RECTANGLE);
         normal.setCornerRadius(radiusPx);
-        normal.setColor(Color.parseColor("#141E2E"));
+        normal.setColor(normalColor);
         normal.setStroke(strokeNormalPx, Color.parseColor("#253549"));
 
         GradientDrawable focused = new GradientDrawable();
         focused.setShape(GradientDrawable.RECTANGLE);
         focused.setCornerRadius(radiusPx);
-        focused.setColor(Color.parseColor("#1E2E48"));
+        focused.setColor(Color.parseColor("#CC1E2E48"));
         focused.setStroke(strokeFocusedPx, accentColor);
 
         StateListDrawable states = new StateListDrawable();
@@ -448,8 +517,8 @@ public class DLaunchActivity extends Activity {
         }
         tile.setLayoutParams(params);
 
-        // Apply dynamic theme tile selector (accent border and card radius)
-        tile.setBackground(createTileSelector(density, prefs.getCardRadius(), prefs.getAccentColor()));
+        // Apply dynamic theme tile selector (accent border, radius, and card transparency)
+        tile.setBackground(createTileSelector(density, prefs.getCardRadius(), prefs.getAccentColor(), prefs.getCardTransparency()));
 
         ImageView iconView = (ImageView) tile.findViewById(R.id.app_icon);
         TextView labelView = (TextView) tile.findViewById(R.id.app_label);
@@ -563,6 +632,156 @@ public class DLaunchActivity extends Activity {
     public void showSettingsMenu() {
         if (settingsDialog != null) {
             settingsDialog.showMainMenu();
+        }
+    }
+
+    // --- Custom Wallpaper Support ---
+
+    public void pickCustomWallpaper() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, REQUEST_PICK_WALLPAPER);
+        } catch (Exception e) {
+            Toast.makeText(this, "No image picker app. Copy image to /sdcard/wallpaper.jpg", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void autoDetectWallpaper() {
+        File found = scanForWallpaperFile();
+        if (found != null && found.exists()) {
+            copyFileToInternalWallpaper(found);
+            prefs.setWallpaperMode("custom");
+            applyThemeAndAccent();
+            Toast.makeText(this, "Wallpaper loaded: " + found.getName(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "No wallpaper.jpg found in /sdcard or /Download", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void showWallpaperInstructions() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert);
+        builder.setTitle("How to Add Custom Wallpapers");
+        builder.setMessage(
+                "You can use any personal photo or high-res artwork:\n\n" +
+                "1. USB Flash Drive:\n" +
+                "Put your picture named 'wallpaper.jpg' on a USB drive and plug it in, or copy it to /sdcard/wallpaper.jpg.\n\n" +
+                "2. Push from Computer via ADB:\n" +
+                "adb push my_photo.jpg /sdcard/wallpaper.jpg\n\n" +
+                "3. In DLaunch Settings, click 'Auto-Detect /sdcard/wallpaper.jpg'."
+        );
+        builder.setPositiveButton("OK", null);
+        builder.show();
+    }
+
+    public File getCustomWallpaperFile() {
+        File internal = new File(getFilesDir(), "custom_wallpaper.jpg");
+        if (internal.exists() && internal.length() > 0) return internal;
+
+        File ext = new File(getExternalFilesDir(null), "custom_wallpaper.jpg");
+        if (ext != null && ext.exists() && ext.length() > 0) return ext;
+
+        return scanForWallpaperFile();
+    }
+
+    private File scanForWallpaperFile() {
+        File[] candidates = new File[]{
+                new File(getExternalFilesDir(null), "custom_wallpaper.jpg"),
+                new File(getExternalFilesDir(null), "wallpaper.jpg"),
+                new File(android.os.Environment.getExternalStorageDirectory(), "wallpaper.jpg"),
+                new File(android.os.Environment.getExternalStorageDirectory(), "wallpaper.png"),
+                new File(android.os.Environment.getExternalStorageDirectory(), "wallpaper.jpeg"),
+                new File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS), "wallpaper.jpg"),
+                new File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS), "wallpaper.png"),
+                new File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_PICTURES), "wallpaper.jpg"),
+                new File("/sdcard/wallpaper.jpg"),
+                new File("/sdcard/wallpaper.png")
+        };
+        for (File f : candidates) {
+            if (f != null && f.exists() && f.length() > 0) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    private void copyFileToInternalWallpaper(File src) {
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = new java.io.FileInputStream(src);
+            File dest = new File(getFilesDir(), "custom_wallpaper.jpg");
+            out = new FileOutputStream(dest);
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (in != null) try { in.close(); } catch (Exception ignored) {}
+            if (out != null) try { out.close(); } catch (Exception ignored) {}
+        }
+    }
+
+    private void copyUriToInternalWallpaper(Uri uri) {
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            in = getContentResolver().openInputStream(uri);
+            File dest = new File(getFilesDir(), "custom_wallpaper.jpg");
+            out = new FileOutputStream(dest);
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (in != null) try { in.close(); } catch (Exception ignored) {}
+            if (out != null) try { out.close(); } catch (Exception ignored) {}
+        }
+    }
+
+    private Bitmap loadWallpaperBitmap(File file) {
+        if (file == null || !file.exists()) return null;
+        try {
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            int reqW = dm.widthPixels;
+            int reqH = dm.heightPixels;
+
+            int inSampleSize = 1;
+            if (opts.outHeight > reqH || opts.outWidth > reqW) {
+                final int halfHeight = opts.outHeight / 2;
+                final int halfWidth = opts.outWidth / 2;
+                while ((halfHeight / inSampleSize) >= reqH && (halfWidth / inSampleSize) >= reqW) {
+                    inSampleSize *= 2;
+                }
+            }
+
+            opts.inJustDecodeBounds = false;
+            opts.inSampleSize = inSampleSize;
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            return BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PICK_WALLPAPER && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            copyUriToInternalWallpaper(uri);
+            prefs.setWallpaperMode("custom");
+            applyThemeAndAccent();
+            Toast.makeText(this, "Custom wallpaper applied!", Toast.LENGTH_SHORT).show();
         }
     }
 

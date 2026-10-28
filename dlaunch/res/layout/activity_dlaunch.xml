@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root_layout"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/bg_screen"
-    android:paddingLeft="48dp"
-    android:paddingRight="48dp"
-    android:paddingTop="32dp"
-    android:paddingBottom="24dp"
-    android:clipToPadding="false"
-    android:clipChildren="false">
+    android:layout_height="match_parent">
+
+    <!-- Background Wallpaper Layer (System or Custom Image) -->
+    <ImageView
+        android:id="@+id/wallpaper_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="@null"
+        android:visibility="gone" />
+
+    <!-- Dimming Overlay for Text & Card Readability -->
+    <View
+        android:id="@+id/wallpaper_dim_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#73000000"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/root_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/bg_screen"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="24dp"
+        android:clipToPadding="false"
+        android:clipChildren="false">
 
     <!-- TOP HEADER BAR -->
     <RelativeLayout
@@ -248,4 +269,5 @@
     </ScrollView>
 
 </LinearLayout>
+</FrameLayout>
 
