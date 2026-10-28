@@ -7,17 +7,24 @@
   <img src="../docs/dlaunch_live.png" alt="DLaunch Live TV Screenshot" width="850">
 </p>
 
+<p align="center">
+  <img src="../docs/dlaunch_settings.png" alt="DLaunch Settings Menu" width="850">
+</p>
+
 ---
 
 ## ✨ Features
 
-- **⚡ Ultra-Minimalist & Fast:** Compiled APK is only **33 KB** in size (vs 240 KB - 530 KB for CleanYourTV and 50+ MB for stock launchers). Launches in `<30ms` and uses `<10 MB RAM`.
-- **📐 Auto-Adjusting Grid Engine:** Dynamically calculates display resolution, density (DPI), and aspect ratio. Automatically configures **4 columns on 720p**, **5 columns on 1080p**, and **6 columns on 4K UHD** so icons never stretch, crop, or look microscopic.
-- **✨ Apple TV & Google TV Glassmorphism:** Ambient obsidian dark background (`#080C14`), frosted glass cards (`#141E2D`), hardware-accelerated 1.09x scale-up animation with vivid cyan border glow on remote focus, and smooth marquee text scrolling.
-- **🕒 Top Shelf Quick Actions:** Integrated live digital clock (`TextClock`), full formatted date, instant TV Inputs switcher (HDMI 1, HDMI 2, AV), and TV settings.
-- **⭐ Pinned Favorites Shelf:** Horizontal top shelf for your top daily streaming apps. Long-press with the remote to pin, unpin, or hide unwanted apps.
-- **🛡️ Pure Leanback Standards:** Full D-pad remote navigation, hardware overscan safe margins (48dp/32dp), and safe remote Back button handling (never leaves the user stuck on a black screen).
-- **🔒 Zero Ads, Zero Telemetry:** Pure local offline operation. No background network pings or data collection.
+- **⚡ Ultra-Minimalist & Fast:** Compiled APK is only **42 KB** in size (vs 240 KB - 530 KB for CleanYourTV and 50+ MB for stock launchers). Launches in `<30ms` and uses `<10 MB RAM`.
+- **🎨 Custom Accent Colors & Themes:** Full visual personalization with zero bloat:
+  - **Themes:** Obsidian Glass, Aurora Cosmic Indigo, Cyberpunk Teal, Sunset Dusk, and OLED Pure Black (`#000000`).
+  - **Accents:** Electric Cyan, Emerald Green, Electric Purple, Sunset Orange, Diamond White, Cyber Yellow, Neon Pink.
+- **📐 Auto-Adjusting Grid Engine:** Dynamically calculates display resolution, density (DPI), and aspect ratio. Automatically configures **4 columns on 720p**, **5 columns on 1080p**, and **6 columns on 4K UHD**, or lock it to 4, 5, or 6 columns via settings.
+- **🏷️ Minimalist Clean Mode:** Toggle app labels on/off for an ultra-clean, icon-only gallery view.
+- **🕒 Top Shelf Quick Actions:** Integrated live digital clock (`TextClock`), full formatted date, instant TV Inputs switcher (HDMI 1, HDMI 2, AV), and DLaunch Appearance Settings.
+- **⭐ Pinned Favorites Shelf:** Horizontal top shelf for your top daily streaming apps. Toggle the shelf on/off in settings. Long-press with the remote to pin, unpin, or hide unwanted apps.
+- **🛡️ Strict D-Pad Remote Control:** Engineered specifically for TV remotes with horizontal lock, automatic focus landing, non-focusable column spacers, and safe Back button handling.
+- **🔒 Zero Ads, Zero Telemetry, Zero Permissions:** Pure local offline operation. No network permissions, no trackers, no background processes.
 
 ---
 

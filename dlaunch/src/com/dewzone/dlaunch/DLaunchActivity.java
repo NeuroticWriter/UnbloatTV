@@ -8,7 +8,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,9 +39,17 @@ import java.util.Map;
 
 public class DLaunchActivity extends Activity {
 
-    private PrefsManager prefs;
+    public PrefsManager prefs;
     private final List<AppItem> allApps = new ArrayList<AppItem>();
     private final List<AppItem> favoriteApps = new ArrayList<AppItem>();
+
+    private View rootLayout;
+    private TextView brandLetter;
+    private TextView labelFavorites;
+    private TextView labelAllApps;
+    private View btnInputs;
+    private View btnSettings;
+    private DLaunchSettingsDialog settingsDialog;
 
     private LinearLayout favoritesRow;
     private LinearLayout allAppsContainer;
@@ -57,9 +68,11 @@ public class DLaunchActivity extends Activity {
         setContentView(R.layout.activity_dlaunch);
 
         prefs = new PrefsManager(this);
+        settingsDialog = new DLaunchSettingsDialog(this, prefs);
 
         initViews();
         setupHeader();
+        applyThemeAndAccent();
         calculateOptimalColumns();
         loadAndDisplayApps();
     }
@@ -68,10 +81,18 @@ public class DLaunchActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateDate();
+        applyThemeAndAccent();
         loadAndDisplayApps();
     }
 
     private void initViews() {
+        rootLayout = findViewById(R.id.root_layout);
+        brandLetter = (TextView) findViewById(R.id.brand_letter);
+        labelFavorites = (TextView) findViewById(R.id.label_favorites);
+        labelAllApps = (TextView) findViewById(R.id.label_all_apps);
+        btnInputs = findViewById(R.id.btn_inputs);
+        btnSettings = findViewById(R.id.btn_settings);
+
         favoritesRow = (LinearLayout) findViewById(R.id.favorites_row);
         allAppsContainer = (LinearLayout) findViewById(R.id.all_apps_grid_container);
         sectionFavoritesContainer = findViewById(R.id.section_favorites_container);
@@ -82,9 +103,6 @@ public class DLaunchActivity extends Activity {
 
     private void setupHeader() {
         updateDate();
-
-        View btnInputs = findViewById(R.id.btn_inputs);
-        View btnSettings = findViewById(R.id.btn_settings);
 
         if (btnInputs != null) {
             btnInputs.setOnFocusChangeListener(new FocusAnimator(1.06f));
@@ -101,6 +119,99 @@ public class DLaunchActivity extends Activity {
                 btnSettings.setNextFocusLeftId(btnInputs.getId());
             }
         }
+
+        // Clicking brand pill also opens DLaunch settings
+        View brandPill = findViewById(R.id.brand_letter);
+        if (brandPill != null && brandPill.getParent() instanceof View) {
+            View brandContainer = (View) brandPill.getParent();
+            brandContainer.setClickable(true);
+            brandContainer.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SETTINGS));
+        }
+    }
+
+    public void applyThemeAndAccent() {
+        int accentColor = prefs.getAccentColor();
+        String theme = prefs.getTheme();
+
+        // 1. Wallpaper Theme
+        if (rootLayout != null) {
+            if ("aurora".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_aurora);
+            } else if ("cyber".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_cyber);
+            } else if ("sunset".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_sunset);
+            } else if ("oled".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_oled);
+            } else {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_obsidian);
+            }
+        }
+
+        // 2. Brand & Header Accents
+        if (brandLetter != null) {
+            brandLetter.setTextColor(accentColor);
+        }
+        if (labelFavorites != null) {
+            labelFavorites.setTextColor(accentColor);
+        }
+
+        // 3. Header Action Buttons
+        float density = getResources().getDisplayMetrics().density;
+        if (btnInputs != null) {
+            btnInputs.setBackground(createPillSelector(density, accentColor));
+        }
+        if (btnSettings != null) {
+            btnSettings.setBackground(createPillSelector(density, accentColor));
+        }
+    }
+
+    public static Drawable createPillSelector(float density, int accentColor) {
+        int radiusPx = (int) (24 * density);
+        int strokeNormalPx = (int) (1 * density);
+        int strokeFocusedPx = (int) (2 * density);
+
+        GradientDrawable normal = new GradientDrawable();
+        normal.setShape(GradientDrawable.RECTANGLE);
+        normal.setCornerRadius(radiusPx);
+        normal.setColor(Color.parseColor("#101A29"));
+        normal.setStroke(strokeNormalPx, Color.parseColor("#233346"));
+
+        GradientDrawable focused = new GradientDrawable();
+        focused.setShape(GradientDrawable.RECTANGLE);
+        focused.setCornerRadius(radiusPx);
+        focused.setColor(accentColor);
+        focused.setStroke(strokeFocusedPx, Color.WHITE);
+
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[]{android.R.attr.state_focused}, focused);
+        states.addState(new int[]{android.R.attr.state_pressed}, focused);
+        states.addState(new int[]{}, normal);
+        return states;
+    }
+
+    public static Drawable createTileSelector(float density, int radiusDp, int accentColor) {
+        int radiusPx = (int) (radiusDp * density);
+        int strokeNormalPx = (int) (1 * density);
+        int strokeFocusedPx = (int) (2.5f * density);
+
+        GradientDrawable normal = new GradientDrawable();
+        normal.setShape(GradientDrawable.RECTANGLE);
+        normal.setCornerRadius(radiusPx);
+        normal.setColor(Color.parseColor("#141E2E"));
+        normal.setStroke(strokeNormalPx, Color.parseColor("#253549"));
+
+        GradientDrawable focused = new GradientDrawable();
+        focused.setShape(GradientDrawable.RECTANGLE);
+        focused.setCornerRadius(radiusPx);
+        focused.setColor(Color.parseColor("#1E2E48"));
+        focused.setStroke(strokeFocusedPx, accentColor);
+
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[]{android.R.attr.state_focused}, focused);
+        states.addState(new int[]{android.R.attr.state_pressed}, focused);
+        states.addState(new int[]{}, normal);
+        return states;
     }
 
     private void updateDate() {
@@ -110,11 +221,13 @@ public class DLaunchActivity extends Activity {
         }
     }
 
-    /**
-     * Auto-Adjusting Grid Engine:
-     * Calculates optimal column count and tile dimensions based on TV resolution and DPI.
-     */
-    private void calculateOptimalColumns() {
+    public void calculateOptimalColumns() {
+        int overrideCols = prefs.getColumnCount();
+        if (overrideCols >= 3 && overrideCols <= 8) {
+            calculatedColumns = overrideCols;
+            return;
+        }
+
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         float widthDp = metrics.widthPixels / metrics.density;
 
@@ -127,7 +240,7 @@ public class DLaunchActivity extends Activity {
         }
     }
 
-    private void loadAndDisplayApps() {
+    public void loadAndDisplayApps() {
         PackageManager pm = getPackageManager();
         Map<String, AppItem> appMap = new HashMap<String, AppItem>();
 
@@ -200,9 +313,10 @@ public class DLaunchActivity extends Activity {
         allAppsContainer.removeAllViews();
 
         LayoutInflater inflater = LayoutInflater.from(this);
+        boolean showFavorites = prefs.isShowFavorites();
 
         // 1. Render Favorites Shelf
-        if (favoriteApps.isEmpty()) {
+        if (!showFavorites || favoriteApps.isEmpty()) {
             sectionFavoritesContainer.setVisibility(View.GONE);
         } else {
             sectionFavoritesContainer.setVisibility(View.VISIBLE);
@@ -211,19 +325,26 @@ public class DLaunchActivity extends Activity {
                 tile.setId(View.generateViewId());
                 favoritesRow.addView(tile);
             }
-            // Lock horizontal focus strictly within favorites shelf
+            // Lock horizontal focus strictly within favorites shelf and link UP to header
             int favCount = favoritesRow.getChildCount();
             for (int i = 0; i < favCount; i++) {
                 View curr = favoritesRow.getChildAt(i);
+                if (btnInputs != null) {
+                    curr.setNextFocusUpId(btnInputs.getId());
+                }
                 if (i > 0) {
                     View prev = favoritesRow.getChildAt(i - 1);
                     curr.setNextFocusLeftId(prev.getId());
                     prev.setNextFocusRightId(curr.getId());
                 }
             }
+            if (favCount > 0 && btnInputs != null && btnSettings != null) {
+                btnInputs.setNextFocusDownId(favoritesRow.getChildAt(0).getId());
+                btnSettings.setNextFocusDownId(favoritesRow.getChildAt(0).getId());
+            }
         }
 
-        // 2. Render All Apps in Auto-Adjusting Grid Rows
+        // 2. Render All Apps in Grid Rows
         if (allApps.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
         } else {
@@ -281,12 +402,25 @@ public class DLaunchActivity extends Activity {
                     }
                 }
 
+                if (r == 0 && (!showFavorites || favoriteApps.isEmpty())) {
+                    for (int i = 0; i < rowItemCount; i++) {
+                        View curr = rowLayout.getChildAt(i);
+                        if (btnInputs != null) {
+                            curr.setNextFocusUpId(btnInputs.getId());
+                        }
+                    }
+                    if (rowItemCount > 0 && btnInputs != null && btnSettings != null) {
+                        btnInputs.setNextFocusDownId(rowLayout.getChildAt(0).getId());
+                        btnSettings.setNextFocusDownId(rowLayout.getChildAt(0).getId());
+                    }
+                }
+
                 allAppsContainer.addView(rowLayout);
             }
         }
 
         // Ensure remote focus lands immediately on first tile with 0 clicks
-        if (favoritesRow != null && favoritesRow.getChildCount() > 0) {
+        if (showFavorites && favoritesRow != null && favoritesRow.getChildCount() > 0) {
             favoritesRow.getChildAt(0).requestFocus();
         } else if (allAppsContainer != null && allAppsContainer.getChildCount() > 0) {
             View firstChild = allAppsContainer.getChildAt(0);
@@ -302,8 +436,8 @@ public class DLaunchActivity extends Activity {
     private View createTileView(LayoutInflater inflater, ViewGroup parent, AppItem app, boolean isFavoriteShelf) {
         View tile = inflater.inflate(R.layout.item_app_tile, parent, false);
 
-        LinearLayout.LayoutParams params;
         float density = getResources().getDisplayMetrics().density;
+        LinearLayout.LayoutParams params;
         if (isFavoriteShelf) {
             int tileWidth = (int) (180 * density);
             params = new LinearLayout.LayoutParams(tileWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -313,6 +447,9 @@ public class DLaunchActivity extends Activity {
             params.setMargins(8, 8, 8, 8);
         }
         tile.setLayoutParams(params);
+
+        // Apply dynamic theme tile selector (accent border and card radius)
+        tile.setBackground(createTileSelector(density, prefs.getCardRadius(), prefs.getAccentColor()));
 
         ImageView iconView = (ImageView) tile.findViewById(R.id.app_icon);
         TextView labelView = (TextView) tile.findViewById(R.id.app_label);
@@ -334,7 +471,13 @@ public class DLaunchActivity extends Activity {
             }
         }
 
-        labelView.setText(app.getLabel());
+        // App Labels toggle (Show / Hide)
+        if (prefs.isShowLabels()) {
+            labelView.setVisibility(View.VISIBLE);
+            labelView.setText(app.getLabel());
+        } else {
+            labelView.setVisibility(View.GONE);
+        }
 
         if (app.isFavorite() && !isFavoriteShelf) {
             starBadge.setVisibility(View.VISIBLE);
@@ -417,13 +560,9 @@ public class DLaunchActivity extends Activity {
         Toast.makeText(this, "Input switcher not supported on this TV hardware", Toast.LENGTH_SHORT).show();
     }
 
-    public void launchSettings() {
-        try {
-            Intent intent = new Intent(Settings.ACTION_SETTINGS);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } catch (Exception e) {
-            Toast.makeText(this, "Cannot open Settings", Toast.LENGTH_SHORT).show();
+    public void showSettingsMenu() {
+        if (settingsDialog != null) {
+            settingsDialog.showMainMenu();
         }
     }
 
@@ -449,14 +588,14 @@ public class DLaunchActivity extends Activity {
     private static class TileFocusListener implements View.OnFocusChangeListener {
         private final TextView labelView;
 
-        public TileFocusListener(TextView labelView) {
+        TileFocusListener(TextView labelView) {
             this.labelView = labelView;
         }
 
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (labelView != null) {
-                labelView.setSelected(hasFocus);
+                labelView.setSelected(hasFocus); // Enables marquee text scrolling
             }
             if (hasFocus) {
                 v.animate().scaleX(1.09f).scaleY(1.09f).setDuration(120).start();
@@ -588,7 +727,7 @@ public class DLaunchActivity extends Activity {
             if (action == ACTION_INPUTS) {
                 activity.launchInputs();
             } else if (action == ACTION_SETTINGS) {
-                activity.launchSettings();
+                activity.showSettingsMenu();
             }
         }
     }
