@@ -556,13 +556,13 @@ public class DLaunchActivity extends Activity {
         LinearLayout.LayoutParams params;
         int radiusDp;
         if (isFavoriteShelf) {
-            int squircleSize = (int) (76 * density);
+            int squircleSize = (int) (90 * density);
             params = new LinearLayout.LayoutParams(squircleSize, squircleSize);
-            int marginHoriz = (int) (6 * density);
-            int marginVert = (int) (2 * density);
+            int marginHoriz = (int) (7 * density);
+            int marginVert = (int) (3 * density);
             params.setMargins(marginHoriz, marginVert, marginHoriz, marginVert);
-            tile.setPadding((int) (10 * density), (int) (10 * density), (int) (10 * density), (int) (10 * density));
-            radiusDp = 18; // Pure squircle matching reference design
+            tile.setPadding((int) (12 * density), (int) (12 * density), (int) (12 * density), (int) (12 * density));
+            radiusDp = 22; // Pure squircle matching reference design
         } else {
             params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
             int margin = (int) (8 * density);
@@ -582,7 +582,7 @@ public class DLaunchActivity extends Activity {
         if (app.getIcon() != null) {
             iconView.setImageDrawable(app.getIcon());
             if (isFavoriteShelf) {
-                int iconSize = (int) (48 * density);
+                int iconSize = (int) (58 * density);
                 iconView.getLayoutParams().width = iconSize;
                 iconView.getLayoutParams().height = iconSize;
                 iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);

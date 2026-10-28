@@ -4,3 +4,4 @@
     <item android:state_pressed="true" android:drawable="@drawable/bg_setting_row_focused" />
     <item android:drawable="@drawable/bg_setting_row_normal" />
 </selector>
+
