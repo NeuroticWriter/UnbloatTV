@@ -439,8 +439,6 @@ public class DLaunchActivity extends Activity {
 
     public static Drawable createTileSelector(float density, int radiusDp, int accentColor, String transparency) {
         int radiusPx = (int) (radiusDp * density);
-        int strokeNormalPx = (int) (1 * density);
-        int strokeFocusedPx = (int) (2.5f * density);
 
         int normalColor;
         if ("solid".equalsIgnoreCase(transparency)) {
@@ -448,23 +446,21 @@ public class DLaunchActivity extends Activity {
         } else if ("ultra".equalsIgnoreCase(transparency)) {
             normalColor = Color.parseColor("#38141E2E");
         } else {
-            normalColor = Color.parseColor("#7A141E2E"); // Frosted Glass
+            normalColor = Color.parseColor("#66141E2E"); // Sleek borderless frosted glass
         }
 
+        // 100% Borderless card: no tile border/stroke to completely eliminate double lining!
         GradientDrawable normal = new GradientDrawable();
         normal.setShape(GradientDrawable.RECTANGLE);
         normal.setCornerRadius(radiusPx);
         normal.setColor(normalColor);
-        normal.setStroke(strokeNormalPx, Color.parseColor("#26374D"));
 
-        // When focused, the card smoothly illuminates slightly, but DOES NOT draw an extra thick stroke.
-        // The single crystalline diamond rim and glow is rendered exclusively by GlassHighlightView,
-        // completely eliminating the double lining!
+        // When focused, subtle illumination from within with NO stroke.
+        // GlassHighlightView provides the sole, clean moving diamond rim and glow!
         GradientDrawable focused = new GradientDrawable();
         focused.setShape(GradientDrawable.RECTANGLE);
         focused.setCornerRadius(radiusPx);
-        focused.setColor(Color.parseColor("#991C2C42"));
-        focused.setStroke(strokeNormalPx, Color.parseColor("#40FFFFFF"));
+        focused.setColor(Color.parseColor("#801E2E44"));
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_focused}, focused);

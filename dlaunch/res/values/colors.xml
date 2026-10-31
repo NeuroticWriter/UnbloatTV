@@ -4,9 +4,9 @@
     <color name="bg_dark">#080C14</color>
     <color name="bg_gradient_end">#0D1524</color>
 
-    <!-- Translucent glass cards -->
+    <!-- Translucent glass cards (Borderless) -->
     <color name="card_bg_normal">#141E2E</color>
-    <color name="card_border_normal">#253549</color>
+    <color name="card_border_normal">@android:color/transparent</color>
 
     <!-- Glowing focus highlight -->
     <color name="card_bg_focused">#1E2E48</color>
