@@ -26,6 +26,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -39,8 +41,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,22 +57,51 @@ public class DLaunchActivity extends Activity {
     private final List<AppItem> allApps = new ArrayList<AppItem>();
     private final List<AppItem> favoriteApps = new ArrayList<AppItem>();
 
+    private FrameLayout appRoot;
     private ImageView wallpaperView;
     private View wallpaperDimOverlay;
+    private ImageView heroArtView;
+    private View heroScrim;
+    private View ambientGlowView;
     private View rootLayout;
+
+    // Header Views
+    private TextView greetingView;
+    private TextClock clockView;
+    private TextClock ampmView;
+    private View clockDivider;
+    private TextView dateView;
+    private View brandContainer;
     private TextView brandLetter;
-    private TextView labelFavorites;
-    private TextView labelAllApps;
+    private TextView brandTitle;
+    private View btnSearch;
     private View btnInputs;
     private View btnSettings;
-    private DLaunchSettingsDialog settingsDialog;
+    private TextView tvSearchLabel;
+    private TextView tvInputsLabel;
+    private TextView tvSettingsLabel;
 
+    // Hero Showcase Views
+    private View heroContainer;
+    private View heroIconFrame;
+    private ImageView heroIconView;
+    private TextView heroTitleView;
+    private TextView heroSubtitleView;
+    private TextView heroBadgePill;
+
+    // Floating Glass Highlight
+    private GlassHighlightView glassHighlight;
+
+    // Lists & Grids
     private LinearLayout favoritesRow;
+    private HorizontalScrollView favoritesScroll;
     private LinearLayout allAppsContainer;
     private View sectionFavoritesContainer;
     private ScrollView mainScroll;
-    private TextView dateView;
+    private TextView labelAllApps;
     private TextView emptyView;
+
+    private DLaunchSettingsDialog settingsDialog;
 
     // Calm Ambient Screensaver
     private View screensaverLayout;
@@ -82,6 +113,8 @@ public class DLaunchActivity extends Activity {
     private final Runnable screensaverRunnable = new ScreensaverTimerRunnable(this);
 
     private int calculatedColumns = 5;
+    private float density = 1.0f;
+    private View currentlyFocusedTile = null;
 
     private static final AppComparator APP_COMPARATOR = new AppComparator();
 
@@ -90,20 +123,46 @@ public class DLaunchActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dlaunch);
 
+        density = getResources().getDisplayMetrics().density;
         prefs = new PrefsManager(this);
         settingsDialog = new DLaunchSettingsDialog(this, prefs);
 
         initViews();
         setupHeader();
+        handleIntentExtras(getIntent());
         applyThemeAndAccent();
         calculateOptimalColumns();
         loadAndDisplayApps();
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleIntentExtras(intent);
+    }
+
+    private void handleIntentExtras(Intent intent) {
+        if (intent == null) return;
+        boolean changed = false;
+        if (intent.hasExtra("set_theme")) {
+            prefs.setTheme(intent.getStringExtra("set_theme"));
+            prefs.setWallpaperMode("gradient");
+            changed = true;
+        }
+        if (intent.hasExtra("set_accent")) {
+            prefs.setAccentColor(intent.getIntExtra("set_accent", PrefsManager.COLOR_PUMPKIN));
+            changed = true;
+        }
+        if (changed) {
+            applyThemeAndAccent();
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        updateDate();
+        updateGreetingAndDate();
         applyThemeAndAccent();
         loadAndDisplayApps();
         resetScreensaverTimer();
@@ -125,19 +184,45 @@ public class DLaunchActivity extends Activity {
     }
 
     private void initViews() {
+        appRoot = (FrameLayout) findViewById(R.id.app_root);
         wallpaperView = (ImageView) findViewById(R.id.wallpaper_view);
         wallpaperDimOverlay = findViewById(R.id.wallpaper_dim_overlay);
+        heroArtView = (ImageView) findViewById(R.id.hero_art_view);
+        heroScrim = findViewById(R.id.hero_scrim);
+        ambientGlowView = findViewById(R.id.ambient_glow_view);
         rootLayout = findViewById(R.id.root_layout);
+
+        greetingView = (TextView) findViewById(R.id.greeting_view);
+        clockView = (TextClock) findViewById(R.id.clock_view);
+        ampmView = (TextClock) findViewById(R.id.ampm_view);
+        clockDivider = findViewById(R.id.clock_divider);
+        dateView = (TextView) findViewById(R.id.date_view);
+        brandContainer = findViewById(R.id.brand_container);
         brandLetter = (TextView) findViewById(R.id.brand_letter);
-        labelAllApps = (TextView) findViewById(R.id.label_all_apps);
+        brandTitle = (TextView) findViewById(R.id.brand_title);
+
+        btnSearch = findViewById(R.id.btn_search);
         btnInputs = findViewById(R.id.btn_inputs);
         btnSettings = findViewById(R.id.btn_settings);
+        tvSearchLabel = (TextView) findViewById(R.id.tv_search_label);
+        tvInputsLabel = (TextView) findViewById(R.id.tv_inputs_label);
+        tvSettingsLabel = (TextView) findViewById(R.id.tv_settings_label);
 
+        heroContainer = findViewById(R.id.hero_container);
+        heroIconFrame = findViewById(R.id.hero_icon_frame);
+        heroIconView = (ImageView) findViewById(R.id.hero_icon_view);
+        heroTitleView = (TextView) findViewById(R.id.hero_title_view);
+        heroSubtitleView = (TextView) findViewById(R.id.hero_subtitle_view);
+        heroBadgePill = (TextView) findViewById(R.id.hero_badge_pill);
+
+        glassHighlight = (GlassHighlightView) findViewById(R.id.glass_highlight);
+
+        favoritesScroll = (HorizontalScrollView) findViewById(R.id.favorites_scroll);
         favoritesRow = (LinearLayout) findViewById(R.id.favorites_row);
-        allAppsContainer = (LinearLayout) findViewById(R.id.all_apps_grid_container);
         sectionFavoritesContainer = findViewById(R.id.section_favorites_container);
+        allAppsContainer = (LinearLayout) findViewById(R.id.all_apps_grid_container);
+        labelAllApps = (TextView) findViewById(R.id.label_all_apps);
         mainScroll = (ScrollView) findViewById(R.id.main_scroll);
-        dateView = (TextView) findViewById(R.id.date_view);
         emptyView = (TextView) findViewById(R.id.tv_empty);
 
         // Screensaver views
@@ -145,14 +230,30 @@ public class DLaunchActivity extends Activity {
         screensaverClock = (TextClock) findViewById(R.id.screensaver_clock);
         screensaverDate = (TextView) findViewById(R.id.screensaver_date);
         screensaverSubtitle = (TextView) findViewById(R.id.screensaver_subtitle);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mainScroll != null) {
+            mainScroll.setOnScrollChangeListener(new ScrollListener(this));
+        }
     }
 
     private void setupHeader() {
-        updateDate();
+        updateGreetingAndDate();
+
+        if (btnSearch != null) {
+            btnSearch.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
+            btnSearch.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SEARCH));
+            if (btnInputs != null) {
+                btnSearch.setNextFocusRightId(btnInputs.getId());
+            }
+            btnSearch.setNextFocusDownId(R.id.favorites_scroll);
+        }
 
         if (btnInputs != null) {
-            btnInputs.setOnFocusChangeListener(new FocusAnimator(1.06f));
+            btnInputs.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
             btnInputs.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_INPUTS));
+            if (btnSearch != null) {
+                btnInputs.setNextFocusLeftId(btnSearch.getId());
+            }
             if (btnSettings != null) {
                 btnInputs.setNextFocusRightId(btnSettings.getId());
             }
@@ -160,7 +261,7 @@ public class DLaunchActivity extends Activity {
         }
 
         if (btnSettings != null) {
-            btnSettings.setOnFocusChangeListener(new FocusAnimator(1.06f));
+            btnSettings.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
             btnSettings.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SETTINGS));
             if (btnInputs != null) {
                 btnSettings.setNextFocusLeftId(btnInputs.getId());
@@ -168,10 +269,7 @@ public class DLaunchActivity extends Activity {
             btnSettings.setNextFocusDownId(R.id.favorites_scroll);
         }
 
-        // Clicking brand pill also opens DLaunch settings
-        View brandPill = findViewById(R.id.brand_letter);
-        if (brandPill != null && brandPill.getParent() instanceof View) {
-            View brandContainer = (View) brandPill.getParent();
+        if (brandContainer != null) {
             brandContainer.setClickable(true);
             brandContainer.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SETTINGS));
         }
@@ -215,20 +313,60 @@ public class DLaunchActivity extends Activity {
         }
 
         // 2. Brand & Header Accents
-        if (brandLetter != null) {
-            brandLetter.setTextColor(accentColor);
+        boolean isHalloween = "halloween".equalsIgnoreCase(theme) || "haunted".equalsIgnoreCase(theme);
+        if (isHalloween) {
+            if (brandLetter != null) {
+                brandLetter.setText("🎃 ");
+                brandLetter.setTextColor(accentColor);
+            }
+            if (brandTitle != null) {
+                brandTitle.setText("Spooky TV");
+            }
+            if (tvSearchLabel != null) {
+                tvSearchLabel.setText("🎙️ Search");
+            }
+            if (tvInputsLabel != null) {
+                tvInputsLabel.setText("🦇 Inputs");
+            }
+            if (tvSettingsLabel != null) {
+                tvSettingsLabel.setText("👻 Settings");
+            }
+        } else {
+            if (brandLetter != null) {
+                brandLetter.setText("D");
+                brandLetter.setTextColor(accentColor);
+            }
+            if (brandTitle != null) {
+                brandTitle.setText("Launch");
+            }
+            if (tvSearchLabel != null) {
+                tvSearchLabel.setText("Search");
+            }
+            if (tvInputsLabel != null) {
+                tvInputsLabel.setText(R.string.btn_inputs);
+            }
+            if (tvSettingsLabel != null) {
+                tvSettingsLabel.setText(R.string.btn_settings);
+            }
         }
-        if (labelFavorites != null) {
-            labelFavorites.setTextColor(accentColor);
+
+        if (labelAllApps != null) {
+            labelAllApps.setTextColor(Color.parseColor("#94A3B8"));
         }
 
         // 3. Header Action Buttons
-        float density = getResources().getDisplayMetrics().density;
+        if (btnSearch != null) {
+            btnSearch.setBackground(createPillSelector(density, accentColor));
+        }
         if (btnInputs != null) {
             btnInputs.setBackground(createPillSelector(density, accentColor));
         }
         if (btnSettings != null) {
             btnSettings.setBackground(createPillSelector(density, accentColor));
+        }
+
+        if (glassHighlight != null) {
+            glassHighlight.setAccentColor(accentColor);
         }
     }
 
@@ -247,7 +385,9 @@ public class DLaunchActivity extends Activity {
         if (wallpaperView != null) wallpaperView.setVisibility(View.GONE);
         if (wallpaperDimOverlay != null) wallpaperDimOverlay.setVisibility(View.GONE);
         if (rootLayout != null) {
-            if ("ocean".equalsIgnoreCase(theme) || "liquid_ocean".equalsIgnoreCase(theme)) {
+            if ("halloween".equalsIgnoreCase(theme) || "haunted".equalsIgnoreCase(theme)) {
+                rootLayout.setBackgroundResource(R.drawable.bg_theme_halloween);
+            } else if ("ocean".equalsIgnoreCase(theme) || "liquid_ocean".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_ocean);
             } else if ("liquid_nebula".equalsIgnoreCase(theme)) {
                 rootLayout.setBackgroundResource(R.drawable.bg_theme_liquid_nebula);
@@ -300,7 +440,7 @@ public class DLaunchActivity extends Activity {
     public static Drawable createTileSelector(float density, int radiusDp, int accentColor, String transparency) {
         int radiusPx = (int) (radiusDp * density);
         int strokeNormalPx = (int) (1 * density);
-        int strokeFocusedPx = (int) (3f * density); // Bold 3dp electric neon outline
+        int strokeFocusedPx = (int) (2.5f * density);
 
         int normalColor;
         if ("solid".equalsIgnoreCase(transparency)) {
@@ -321,7 +461,7 @@ public class DLaunchActivity extends Activity {
         focused.setShape(GradientDrawable.RECTANGLE);
         focused.setCornerRadius(radiusPx);
         focused.setColor(Color.parseColor("#E6132034"));
-        focused.setStroke(strokeFocusedPx, accentColor); // Electric neon contour!
+        focused.setStroke(strokeFocusedPx, accentColor);
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_focused}, focused);
@@ -330,7 +470,32 @@ public class DLaunchActivity extends Activity {
         return states;
     }
 
-    private void updateDate() {
+    private void updateGreetingAndDate() {
+        Calendar cal = Calendar.getInstance();
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        String theme = prefs.getTheme();
+        boolean isHalloween = "halloween".equalsIgnoreCase(theme) || "haunted".equalsIgnoreCase(theme);
+
+        if (greetingView != null) {
+            if (isHalloween) {
+                greetingView.setText("🎃 HAPPY HALLOWEEN");
+                greetingView.setTextColor(prefs.getAccentColor());
+            } else {
+                String greeting;
+                if (hour >= 5 && hour < 12) {
+                    greeting = "GOOD MORNING";
+                } else if (hour >= 12 && hour < 17) {
+                    greeting = "GOOD AFTERNOON";
+                } else if (hour >= 17 && hour < 22) {
+                    greeting = "GOOD EVENING";
+                } else {
+                    greeting = "LATE NIGHT TV";
+                }
+                greetingView.setText(greeting);
+                greetingView.setTextColor(Color.parseColor("#A0CBD5E1"));
+            }
+        }
+
         if (dateView != null) {
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM d", Locale.getDefault());
             dateView.setText(sdf.format(new Date()));
@@ -348,7 +513,7 @@ public class DLaunchActivity extends Activity {
         float widthDp = metrics.widthPixels / metrics.density;
 
         if (widthDp < 850) {
-            calculatedColumns = 4; // 720p / compact display
+            calculatedColumns = 4; // 720p compact display
         } else if (widthDp < 1250) {
             calculatedColumns = 5; // 1080p standard FHD TV
         } else {
@@ -368,7 +533,7 @@ public class DLaunchActivity extends Activity {
         if (leanbackApps != null) {
             for (ResolveInfo info : leanbackApps) {
                 String pkg = info.activityInfo.packageName;
-                if (pkg.equals(getPackageName())) continue; // Skip DLaunch self
+                if (pkg.equals(getPackageName())) continue;
 
                 String label = info.loadLabel(pm).toString();
                 Drawable icon = null;
@@ -384,7 +549,7 @@ public class DLaunchActivity extends Activity {
             }
         }
 
-        // 2. Query Standard Launcher apps (sideloaded / mobile apps without TV banners)
+        // 2. Query Standard Launcher apps (sideloaded apps)
         Intent standardIntent = new Intent(Intent.ACTION_MAIN, null);
         standardIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> standardApps = pm.queryIntentActivities(standardIntent, 0);
@@ -441,7 +606,7 @@ public class DLaunchActivity extends Activity {
                 tile.setId(View.generateViewId());
                 favoritesRow.addView(tile);
             }
-            // Lock horizontal focus strictly within favorites shelf and link UP to header
+
             int favCount = favoritesRow.getChildCount();
             for (int i = 0; i < favCount; i++) {
                 View curr = favoritesRow.getChildAt(i);
@@ -535,7 +700,7 @@ public class DLaunchActivity extends Activity {
             }
         }
 
-        // Ensure remote focus lands immediately on first tile with 0 clicks
+        // Remote focus lands immediately on first tile
         if (showFavorites && favoritesRow != null && favoritesRow.getChildCount() > 0) {
             favoritesRow.getChildAt(0).requestFocus();
         } else if (allAppsContainer != null && allAppsContainer.getChildCount() > 0) {
@@ -552,17 +717,16 @@ public class DLaunchActivity extends Activity {
     private View createTileView(LayoutInflater inflater, ViewGroup parent, AppItem app, boolean isFavoriteShelf) {
         View tile = inflater.inflate(R.layout.item_app_tile, parent, false);
 
-        float density = getResources().getDisplayMetrics().density;
         LinearLayout.LayoutParams params;
         int radiusDp;
         if (isFavoriteShelf) {
-            int squircleSize = (int) (90 * density);
+            int squircleSize = (int) (88 * density);
             params = new LinearLayout.LayoutParams(squircleSize, squircleSize);
             int marginHoriz = (int) (7 * density);
-            int marginVert = (int) (3 * density);
+            int marginVert = (int) (4 * density);
             params.setMargins(marginHoriz, marginVert, marginHoriz, marginVert);
             tile.setPadding((int) (12 * density), (int) (12 * density), (int) (12 * density), (int) (12 * density));
-            radiusDp = 22; // Pure squircle matching reference design
+            radiusDp = 22;
         } else {
             params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
             int margin = (int) (8 * density);
@@ -572,7 +736,6 @@ public class DLaunchActivity extends Activity {
         }
         tile.setLayoutParams(params);
 
-        // Apply dynamic theme tile selector (accent border, radius, and card transparency)
         tile.setBackground(createTileSelector(density, radiusDp, prefs.getAccentColor(), prefs.getCardTransparency()));
 
         ImageView iconView = (ImageView) tile.findViewById(R.id.app_icon);
@@ -582,7 +745,7 @@ public class DLaunchActivity extends Activity {
         if (app.getIcon() != null) {
             iconView.setImageDrawable(app.getIcon());
             if (isFavoriteShelf) {
-                int iconSize = (int) (58 * density);
+                int iconSize = (int) (56 * density);
                 iconView.getLayoutParams().width = iconSize;
                 iconView.getLayoutParams().height = iconSize;
                 iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -590,11 +753,9 @@ public class DLaunchActivity extends Activity {
                 int w = app.getIcon().getIntrinsicWidth();
                 int h = app.getIcon().getIntrinsicHeight();
                 if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
-                    // Wide Leanback 16:9 banner
                     iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
                     iconView.getLayoutParams().height = (int) (64 * density);
                 } else {
-                    // Standard square app icon
                     int size = (int) (64 * density);
                     iconView.getLayoutParams().width = size;
                     iconView.getLayoutParams().height = size;
@@ -602,7 +763,6 @@ public class DLaunchActivity extends Activity {
             }
         }
 
-        // App Labels toggle (Squircle dock capsule NEVER shows text labels, matching reference)
         if (isFavoriteShelf) {
             labelView.setVisibility(View.GONE);
             starBadge.setVisibility(View.GONE);
@@ -622,13 +782,107 @@ public class DLaunchActivity extends Activity {
             }
         }
 
-        // TV Remote Focus Animation, Marquee & Strict Horizontal Navigation
-        tile.setOnFocusChangeListener(new TileFocusListener(labelView));
+        tile.setOnFocusChangeListener(new TileFocusListener(this, app, labelView, isFavoriteShelf ? 22 : radiusDp));
         tile.setOnKeyListener(new TileKeyListener());
         tile.setOnClickListener(new TileClickListener(this, app));
         tile.setOnLongClickListener(new TileLongClickListener(this, app));
 
         return tile;
+    }
+
+    public void onTileFocused(final View tileView, final AppItem app, int radiusDp) {
+        currentlyFocusedTile = tileView;
+
+        // 1. Update Cinematic Hero Showcase
+        updateHeroShowcase(app);
+
+        // 2. Smoothly Glide Floating Glass Highlight over focused item
+        glideGlassTo(tileView, true);
+    }
+
+    public void glideGlassTo(final View targetView, final boolean animate) {
+        if (targetView == null || appRoot == null || glassHighlight == null) return;
+        targetView.post(new GlideRunnable(this, targetView, animate));
+    }
+
+    public void executeGlide(View targetView, boolean animate) {
+        if (!targetView.isFocused()) return;
+
+        int[] rootCoords = new int[2];
+        appRoot.getLocationOnScreen(rootCoords);
+
+        int[] targetCoords = new int[2];
+        targetView.getLocationOnScreen(targetCoords);
+
+        float pad = glassHighlight.getGlowInset();
+        float scale = 1.08f;
+        float w = targetView.getWidth() * scale + 2 * pad;
+        float h = targetView.getHeight() * scale + 2 * pad;
+
+        float targetX = (targetCoords[0] - rootCoords[0]) + (targetView.getWidth() / 2f) - (w / 2f);
+        float targetY = (targetCoords[1] - rootCoords[1]) + (targetView.getHeight() / 2f) - (h / 2f);
+        float radiusPx = 20f * density * scale;
+
+        glassHighlight.glideTo(targetX, targetY, (int) w, (int) h, radiusPx, animate);
+    }
+
+    private void updateHeroShowcase(final AppItem app) {
+        if (heroContainer == null || app == null) return;
+
+        // Set Icon
+        if (heroIconView != null) {
+            heroIconView.setImageDrawable(app.getIcon());
+        }
+
+        // Set Badge
+        if (heroBadgePill != null) {
+            if (app.isFavorite()) {
+                heroBadgePill.setText("✦ FAVORITE");
+                heroBadgePill.setVisibility(View.VISIBLE);
+            } else if (app.isLeanback()) {
+                heroBadgePill.setText("TV APP");
+                heroBadgePill.setVisibility(View.VISIBLE);
+            } else {
+                heroBadgePill.setVisibility(View.GONE);
+            }
+        }
+
+        // Extract Dominant Accent Color
+        int ambientColor = HeroArtHelper.extractDominantColor(app.getIcon(), prefs.getAccentColor());
+
+        if (glassHighlight != null) {
+            glassHighlight.setAccentColor(ambientColor);
+        }
+
+        if (heroBadgePill != null) {
+            heroBadgePill.setTextColor(ambientColor);
+        }
+
+        // Animate Hero Title smoothly (slide + crossfade)
+        if (heroTitleView != null) {
+            final String newLabel = app.getLabel();
+            if (!newLabel.contentEquals(heroTitleView.getText())) {
+                heroTitleView.animate().alpha(0f).translationX(-10f * density).setDuration(80)
+                    .withEndAction(new HeroTitleUpdateRunnable(heroTitleView, newLabel, density))
+                    .start();
+            }
+        }
+
+        // Cinematic Ambient Backdrop Update
+        if (heroArtView != null) {
+            Bitmap backdrop = HeroArtHelper.createCinematicBackdrop(app.getIcon());
+            if (backdrop != null) {
+                heroArtView.setImageBitmap(backdrop);
+                heroArtView.animate().alpha(0.42f).setDuration(240).start();
+            }
+        }
+
+        if (ambientGlowView != null) {
+            int glowAlpha = 0x22;
+            int subtleGlow = (glowAlpha << 24) | (ambientColor & 0x00FFFFFF);
+            ambientGlowView.setBackgroundColor(subtleGlow);
+            ambientGlowView.animate().alpha(1.0f).setDuration(300).start();
+        }
     }
 
     public void launchApp(AppItem app) {
@@ -891,6 +1145,12 @@ public class DLaunchActivity extends Activity {
             screensaverDate.setText(sdf.format(new Date()));
         }
         if (screensaverSubtitle != null) {
+            boolean isHalloween = "halloween".equalsIgnoreCase(prefs.getTheme()) || "haunted".equalsIgnoreCase(prefs.getTheme());
+            if (isHalloween) {
+                screensaverSubtitle.setText("🎃 Whispering Shadows • Happy Halloween");
+            } else {
+                screensaverSubtitle.setText("Calm Ambient Mode");
+            }
             screensaverSubtitle.setTextColor(prefs.getAccentColor());
         }
 
@@ -898,8 +1158,14 @@ public class DLaunchActivity extends Activity {
         if (header != null) {
             header.animate().alpha(0f).setDuration(450).start();
         }
+        if (heroContainer != null) {
+            heroContainer.animate().alpha(0f).setDuration(450).start();
+        }
         if (mainScroll != null) {
             mainScroll.animate().alpha(0f).setDuration(450).start();
+        }
+        if (glassHighlight != null) {
+            glassHighlight.animate().alpha(0f).setDuration(300).start();
         }
         if (screensaverLayout != null) {
             screensaverLayout.setVisibility(View.VISIBLE);
@@ -915,8 +1181,14 @@ public class DLaunchActivity extends Activity {
         if (header != null) {
             header.animate().alpha(1f).setDuration(300).start();
         }
+        if (heroContainer != null) {
+            heroContainer.animate().alpha(1f).setDuration(300).start();
+        }
         if (mainScroll != null) {
             mainScroll.animate().alpha(1f).setDuration(300).start();
+        }
+        if (glassHighlight != null) {
+            glassHighlight.animate().alpha(1f).setDuration(300).start();
         }
         if (screensaverLayout != null) {
             screensaverLayout.animate().alpha(0f).setDuration(300).withEndAction(new ScreensaverHideRunnable(screensaverLayout)).start();
@@ -937,9 +1209,37 @@ public class DLaunchActivity extends Activity {
                     hideScreensaver();
                 }
             }
-            return true; // Consume event to prevent accidental click when waking from screensaver
+            return true;
         }
         return super.dispatchKeyEvent(event);
+    }
+
+    public void launchVoiceSearch() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_ASSIST);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Throwable t1) {
+            try {
+                Intent intent = new Intent("android.speech.action.WEB_SEARCH");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } catch (Throwable t2) {
+                try {
+                    Intent intent = new Intent("android.speech.action.RECOGNIZE_SPEECH");
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Throwable t3) {
+                    Toast.makeText(this, "Voice search is currently unavailable", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean onSearchRequested() {
+        launchVoiceSearch();
+        return true;
     }
 
     @Override
@@ -955,6 +1255,9 @@ public class DLaunchActivity extends Activity {
                 mainScroll.smoothScrollTo(0, 0);
             }
             return true;
+        } else if (keyCode == KeyEvent.KEYCODE_SEARCH || keyCode == KeyEvent.KEYCODE_VOICE_ASSIST || keyCode == KeyEvent.KEYCODE_ASSIST) {
+            launchVoiceSearch();
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -962,24 +1265,31 @@ public class DLaunchActivity extends Activity {
     // --- STATIC LISTENERS (Prevents JDK21 synthetic capture bug) ---
 
     private static class TileFocusListener implements View.OnFocusChangeListener {
+        private final DLaunchActivity activity;
+        private final AppItem app;
         private final TextView labelView;
+        private final int radiusDp;
 
-        TileFocusListener(TextView labelView) {
+        TileFocusListener(DLaunchActivity activity, AppItem app, TextView labelView, int radiusDp) {
+            this.activity = activity;
+            this.app = app;
             this.labelView = labelView;
+            this.radiusDp = radiusDp;
         }
 
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (labelView != null) {
-                labelView.setSelected(hasFocus); // Enables marquee text scrolling
+                labelView.setSelected(hasFocus);
             }
             if (hasFocus) {
-                v.animate().scaleX(1.10f).scaleY(1.10f).setDuration(120).start();
+                v.animate().scaleX(1.08f).scaleY(1.08f).setDuration(130).start();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     v.setElevation(16f);
                 }
+                activity.onTileFocused(v, app, radiusDp);
             } else {
-                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start();
+                v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(130).start();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     v.setElevation(0f);
                 }
@@ -1089,6 +1399,7 @@ public class DLaunchActivity extends Activity {
     private static class ActionClickListener implements View.OnClickListener {
         public static final int ACTION_INPUTS = 1;
         public static final int ACTION_SETTINGS = 2;
+        public static final int ACTION_SEARCH = 3;
 
         private final DLaunchActivity activity;
         private final int action;
@@ -1104,14 +1415,22 @@ public class DLaunchActivity extends Activity {
                 activity.launchInputs();
             } else if (action == ACTION_SETTINGS) {
                 activity.showSettingsMenu();
+            } else if (action == ACTION_SEARCH) {
+                activity.launchVoiceSearch();
             }
         }
     }
 
     public static class FocusAnimator implements View.OnFocusChangeListener {
+        private final DLaunchActivity activity;
         private final float scale;
 
         public FocusAnimator(float scale) {
+            this(null, scale);
+        }
+
+        public FocusAnimator(DLaunchActivity activity, float scale) {
+            this.activity = activity;
             this.scale = scale;
         }
 
@@ -1121,6 +1440,9 @@ public class DLaunchActivity extends Activity {
                 v.animate().scaleX(scale).scaleY(scale).setDuration(120).start();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     v.setElevation(8f);
+                }
+                if (activity != null) {
+                    activity.glideGlassTo(v, true);
                 }
             } else {
                 v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(120).start();
@@ -1150,6 +1472,55 @@ public class DLaunchActivity extends Activity {
         @Override
         public void run() {
             layout.setVisibility(View.GONE);
+        }
+    }
+
+    private static class ScrollListener implements View.OnScrollChangeListener {
+        private final DLaunchActivity activity;
+        ScrollListener(DLaunchActivity activity) {
+            this.activity = activity;
+        }
+        @Override
+        public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+            if (activity.currentlyFocusedTile != null && activity.currentlyFocusedTile.isFocused()) {
+                activity.glideGlassTo(activity.currentlyFocusedTile, false);
+            }
+        }
+    }
+
+    private static class GlideRunnable implements Runnable {
+        private final DLaunchActivity activity;
+        private final View targetView;
+        private final boolean animate;
+
+        GlideRunnable(DLaunchActivity activity, View targetView, boolean animate) {
+            this.activity = activity;
+            this.targetView = targetView;
+            this.animate = animate;
+        }
+
+        @Override
+        public void run() {
+            activity.executeGlide(targetView, animate);
+        }
+    }
+
+    private static class HeroTitleUpdateRunnable implements Runnable {
+        private final TextView titleView;
+        private final String newLabel;
+        private final float density;
+
+        HeroTitleUpdateRunnable(TextView titleView, String newLabel, float density) {
+            this.titleView = titleView;
+            this.newLabel = newLabel;
+            this.density = density;
+        }
+
+        @Override
+        public void run() {
+            titleView.setText(newLabel);
+            titleView.setTranslationX(10f * density);
+            titleView.animate().alpha(1f).translationX(0f).setDuration(160).start();
         }
     }
 }

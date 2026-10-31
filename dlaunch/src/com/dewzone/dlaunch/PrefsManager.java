@@ -32,6 +32,7 @@ public class PrefsManager {
     public static final int COLOR_WHITE = Color.parseColor("#F8FAFC");
     public static final int COLOR_YELLOW = Color.parseColor("#EAB308");
     public static final int COLOR_PINK = Color.parseColor("#EC4899");
+    public static final int COLOR_PUMPKIN = Color.parseColor("#FF7518");
 
     private final SharedPreferences prefs;
 

@@ -141,7 +141,8 @@ public class DLaunchSettingsDialog {
             wpBadge = "Custom Photo";
         } else {
             String theme = prefs.getTheme();
-            if ("ocean".equalsIgnoreCase(theme) || "liquid_ocean".equalsIgnoreCase(theme)) wpBadge = "Liquid Ocean";
+            if ("halloween".equalsIgnoreCase(theme) || "haunted".equalsIgnoreCase(theme)) wpBadge = "Haunted Twilight";
+            else if ("ocean".equalsIgnoreCase(theme) || "liquid_ocean".equalsIgnoreCase(theme)) wpBadge = "Liquid Ocean";
             else if ("liquid_nebula".equalsIgnoreCase(theme) || "nebula".equalsIgnoreCase(theme)) wpBadge = "Liquid Nebula";
             else if ("liquid_aurora".equalsIgnoreCase(theme) || "aurora".equalsIgnoreCase(theme)) wpBadge = "Liquid Aurora";
             else if ("liquid_sunset".equalsIgnoreCase(theme) || "sunset".equalsIgnoreCase(theme)) wpBadge = "Liquid Sunset";
@@ -218,12 +219,13 @@ public class DLaunchSettingsDialog {
             PrefsManager.COLOR_SUNSET,
             PrefsManager.COLOR_WHITE,
             PrefsManager.COLOR_YELLOW,
-            PrefsManager.COLOR_PINK
+            PrefsManager.COLOR_PINK,
+            PrefsManager.COLOR_PUMPKIN
         };
         final String[] names = new String[]{
-            "Electric Cyan", "Emerald Green", "Electric Purple", "Sunset Orange", "Diamond White", "Cyber Yellow", "Neon Pink"
+            "Electric Cyan", "Emerald Green", "Electric Purple", "Sunset Orange", "Diamond White", "Cyber Yellow", "Neon Pink", "Pumpkin Orange"
         };
-        final String[] emojis = new String[]{"💠", "🌲", "🔮", "🌅", "❄️", "⚡", "🌸"};
+        final String[] emojis = new String[]{"💠", "🌲", "🔮", "🌅", "❄️", "⚡", "🌸", "🎃"};
 
         int current = prefs.getAccentColor();
         View focusTarget = null;
@@ -245,7 +247,8 @@ public class DLaunchSettingsDialog {
         String currentWp = prefs.getWallpaperMode();
         String currentTheme = prefs.getTheme();
 
-        View first = addSettingRow(list, "🌊", "Liquid Ocean (Default)", "Calm deep sapphire abyss with liquid lighting", ("gradient".equals(currentWp) && ("ocean".equals(currentTheme) || "liquid_ocean".equals(currentTheme))) ? "Active" : "", new ThemeClickListener(this, "ocean", dialog));
+        View first = addSettingRow(list, "🎃", "Haunted Twilight (Halloween)", "Spooky obsidian purple & jack-o'-lantern mist", ("gradient".equals(currentWp) && ("halloween".equals(currentTheme) || "haunted".equals(currentTheme))) ? "Active" : "", new ThemeClickListener(this, "halloween", dialog));
+        addSettingRow(list, "🌊", "Liquid Ocean (Default)", "Calm deep sapphire abyss with liquid lighting", ("gradient".equals(currentWp) && ("ocean".equals(currentTheme) || "liquid_ocean".equals(currentTheme))) ? "Active" : "", new ThemeClickListener(this, "ocean", dialog));
         addSettingRow(list, "🌌", "Liquid Nebula", "Cosmic twilight indigo & obsidian calm", ("gradient".equals(currentWp) && ("nebula".equals(currentTheme) || "liquid_nebula".equals(currentTheme))) ? "Active" : "", new ThemeClickListener(this, "liquid_nebula", dialog));
         addSettingRow(list, "🌲", "Liquid Aurora", "Serene teal & boreal emerald abyss", ("gradient".equals(currentWp) && ("aurora".equals(currentTheme) || "liquid_aurora".equals(currentTheme))) ? "Active" : "", new ThemeClickListener(this, "liquid_aurora", dialog));
         addSettingRow(list, "🌅", "Liquid Sunset", "Peaceful dusk horizon & plum amethyst", ("gradient".equals(currentWp) && ("sunset".equals(currentTheme) || "liquid_sunset".equals(currentTheme))) ? "Active" : "", new ThemeClickListener(this, "liquid_sunset", dialog));
@@ -408,6 +411,7 @@ public class DLaunchSettingsDialog {
         if (color == PrefsManager.COLOR_WHITE) return "White";
         if (color == PrefsManager.COLOR_YELLOW) return "Yellow";
         if (color == PrefsManager.COLOR_PINK) return "Pink";
+        if (color == PrefsManager.COLOR_PUMPKIN) return "Pumpkin Orange";
         return "Custom";
     }
 
