@@ -56,25 +56,24 @@
         android:paddingRight="48dp"
         android:paddingTop="26dp"
         android:paddingBottom="20dp"
-        android:clipToPadding="false"
-        android:clipChildren="false">
+        android:clipToPadding="true"
+        android:clipChildren="true">
 
         <!-- TOP HEADER BAR -->
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/header_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:layout_marginBottom="14dp">
 
-            <!-- Left Container: Brand Pill + Greeting + Clock + Date (guaranteed to not overlap right buttons) -->
+            <!-- Left Container: Brand Pill + Greeting + Clock + Date (expands to fill available width) -->
             <LinearLayout
                 android:id="@+id/header_left_block"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/header_buttons_container"
+                android:layout_weight="1"
                 android:layout_marginEnd="16dp"
                 android:orientation="vertical">
 
@@ -136,7 +135,9 @@
                         android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.20"
-                        android:textAllCaps="true" />
+                        android:textAllCaps="true"
+                        android:singleLine="true"
+                        android:ellipsize="end" />
                 </LinearLayout>
 
                 <!-- Row 2: Clock + AM/PM + Divider + Date -->
@@ -191,7 +192,9 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif"
-                        android:letterSpacing="0.02" />
+                        android:letterSpacing="0.02"
+                        android:singleLine="true"
+                        android:ellipsize="end" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -200,8 +203,6 @@
                 android:id="@+id/header_buttons_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
                 android:orientation="horizontal"
                 android:clipChildren="false"
                 android:clipToPadding="false">
@@ -311,108 +312,112 @@
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
-        </RelativeLayout>
-
-        <!-- CINEMATIC HERO SHOWCASE (Streamlined & Proportional) -->
-        <LinearLayout
-            android:id="@+id/hero_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp"
-            android:clipChildren="false"
-            android:clipToPadding="false">
-
-            <!-- Hero Glass Frame for Focused Icon -->
-            <FrameLayout
-                android:id="@+id/hero_icon_frame"
-                android:layout_width="54dp"
-                android:layout_height="54dp"
-                android:background="@drawable/bg_hero_icon_frame"
-                android:padding="6dp">
-
-                <ImageView
-                    android:id="@+id/hero_icon_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:contentDescription="@null" />
-            </FrameLayout>
-
-            <!-- App Title & Hint -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="14dp"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/hero_title_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Select an app"
-                        android:textColor="#FFFFFFFF"
-                        android:textSize="26sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:letterSpacing="-0.01"
-                        android:includeFontPadding="false"
-                        android:singleLine="true" />
-
-                    <TextView
-                        android:id="@+id/hero_badge_pill"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:background="@drawable/bg_hero_badge"
-                        android:paddingStart="8dp"
-                        android:paddingTop="2dp"
-                        android:paddingEnd="8dp"
-                        android:paddingBottom="2dp"
-                        android:text="✦ FAVORITE"
-                        android:textColor="#00E5FF"
-                        android:textSize="10sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/hero_subtitle_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="✦ Press OK to Launch  •  Long-Press for Options"
-                    android:textColor="#8594A3B8"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif"
-                    android:letterSpacing="0.03" />
-            </LinearLayout>
         </LinearLayout>
 
         <!-- SCROLLABLE BODY -->
         <ScrollView
             android:id="@+id/main_scroll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:fillViewport="true"
             android:scrollbars="none"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+            android:requiresFadingEdge="vertical"
+            android:fadingEdgeLength="20dp"
+            android:clipChildren="true"
+            android:clipToPadding="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:clipChildren="false"
-                android:clipToPadding="false">
+                android:clipChildren="true"
+                android:clipToPadding="true">
+
+                <!-- CINEMATIC HERO SHOWCASE (Streamlined & Proportional) -->
+                <LinearLayout
+                    android:id="@+id/hero_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="14dp"
+                    android:clipChildren="true"
+                    android:clipToPadding="true">
+
+                    <!-- Hero Glass Frame for Focused Icon -->
+                    <FrameLayout
+                        android:id="@+id/hero_icon_frame"
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:background="@drawable/bg_hero_icon_frame"
+                        android:padding="6dp">
+
+                        <ImageView
+                            android:id="@+id/hero_icon_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@null" />
+                    </FrameLayout>
+
+                    <!-- App Title & Hint -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/hero_title_view"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Select an app"
+                                android:textColor="#FFFFFFFF"
+                                android:textSize="26sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:letterSpacing="-0.01"
+                                android:includeFontPadding="false"
+                                android:singleLine="true" />
+
+                            <TextView
+                                android:id="@+id/hero_badge_pill"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:background="@drawable/bg_hero_badge"
+                                android:paddingStart="8dp"
+                                android:paddingTop="2dp"
+                                android:paddingEnd="8dp"
+                                android:paddingBottom="2dp"
+                                android:text="✦ FAVORITE"
+                                android:textColor="#00E5FF"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.08"
+                                android:visibility="gone" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/hero_subtitle_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="✦ Press OK to Launch  •  Long-Press for Options"
+                            android:textColor="#8594A3B8"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif"
+                            android:letterSpacing="0.03" />
+                    </LinearLayout>
+                </LinearLayout>
 
                 <!-- FLOATING GLASS DOCK CAPSULE (FAVORITES) -->
                 <LinearLayout

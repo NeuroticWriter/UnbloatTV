@@ -20,8 +20,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.content.res.Configuration;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,6 +118,16 @@ public class DLaunchActivity extends Activity {
     private float density = 1.0f;
     private View currentlyFocusedTile = null;
 
+    // Dynamic Responsive Multi-Size TV Metrics
+    private float widthDp = 960f;
+    private float heightDp = 540f;
+    private int responsiveFavoriteTileSize = 88;
+    private int responsiveFavoriteIconSize = 56;
+    private int responsiveGridIconSize = 64;
+    private int responsiveHeroIconFrameSize = 54;
+    private float responsiveHeroTitleSp = 26f;
+    private float responsiveClockSp = 40f;
+
     private static final AppComparator APP_COMPARATOR = new AppComparator();
 
     @Override
@@ -128,6 +140,7 @@ public class DLaunchActivity extends Activity {
         settingsDialog = new DLaunchSettingsDialog(this, prefs);
 
         initViews();
+        applyResponsiveMetrics();
         setupHeader();
         handleIntentExtras(getIntent());
         applyThemeAndAccent();
@@ -162,10 +175,20 @@ public class DLaunchActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        applyResponsiveMetrics();
         updateGreetingAndDate();
         applyThemeAndAccent();
+        calculateOptimalColumns();
         loadAndDisplayApps();
         resetScreensaverTimer();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        applyResponsiveMetrics();
+        calculateOptimalColumns();
+        loadAndDisplayApps();
     }
 
     @Override
@@ -501,6 +524,65 @@ public class DLaunchActivity extends Activity {
         }
     }
 
+    public void applyResponsiveMetrics() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        density = metrics.density;
+        widthDp = metrics.widthPixels / density;
+        heightDp = metrics.heightPixels / density;
+
+        // 1. Dynamic Safe Overscan Margins
+        // Auto-scaled proportional to screen dimensions (~4.2% horiz, ~3.6% vert)
+        int horizPad = Math.max((int) (28 * density), (int) (widthDp * 0.042f * density));
+        int vertPad = Math.max((int) (16 * density), (int) (heightDp * 0.036f * density));
+        int bottomPad = Math.max((int) (14 * density), (int) (heightDp * 0.028f * density));
+        if (rootLayout != null) {
+            rootLayout.setPadding(horizPad, vertPad, horizPad, bottomPad);
+        }
+
+        // 2. Proportional Component Scaling based on heightDp
+        if (heightDp <= 560f) {
+            // Compact 720p TV / streaming stick (e.g. 1280x720 tvdpi)
+            responsiveFavoriteTileSize = (int) (76 * density);
+            responsiveFavoriteIconSize = (int) (48 * density);
+            responsiveGridIconSize = (int) (52 * density);
+            responsiveHeroIconFrameSize = (int) (46 * density);
+            responsiveHeroTitleSp = 22f;
+            responsiveClockSp = 34f;
+        } else if (heightDp <= 750f) {
+            // Standard 1080p FHD TV (e.g. 1920x1080 xhdpi)
+            responsiveFavoriteTileSize = (int) (88 * density);
+            responsiveFavoriteIconSize = (int) (56 * density);
+            responsiveGridIconSize = (int) (64 * density);
+            responsiveHeroIconFrameSize = (int) (54 * density);
+            responsiveHeroTitleSp = 26f;
+            responsiveClockSp = 40f;
+        } else {
+            // Large Screen / 4K UHD Native (e.g. 3840x2160 xxxhdpi)
+            responsiveFavoriteTileSize = (int) (98 * density);
+            responsiveFavoriteIconSize = (int) (64 * density);
+            responsiveGridIconSize = (int) (72 * density);
+            responsiveHeroIconFrameSize = (int) (62 * density);
+            responsiveHeroTitleSp = 30f;
+            responsiveClockSp = 46f;
+        }
+
+        // Apply dynamically scaled sizes to layout views
+        if (clockView != null) {
+            clockView.setTextSize(TypedValue.COMPLEX_UNIT_SP, responsiveClockSp);
+        }
+        if (heroTitleView != null) {
+            heroTitleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, responsiveHeroTitleSp);
+        }
+        if (heroIconFrame != null) {
+            ViewGroup.LayoutParams lp = heroIconFrame.getLayoutParams();
+            if (lp != null) {
+                lp.width = responsiveHeroIconFrameSize;
+                lp.height = responsiveHeroIconFrameSize;
+                heroIconFrame.setLayoutParams(lp);
+            }
+        }
+    }
+
     public void calculateOptimalColumns() {
         int overrideCols = prefs.getColumnCount();
         if (overrideCols >= 3 && overrideCols <= 8) {
@@ -508,16 +590,13 @@ public class DLaunchActivity extends Activity {
             return;
         }
 
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        float widthDp = metrics.widthPixels / metrics.density;
+        // Dynamic formula based on available DP width
+        int horizPadDp = Math.max(28, (int) (widthDp * 0.042f));
+        float availWidthDp = widthDp - (2 * horizPadDp);
+        int targetCardWidthDp = 160;
 
-        if (widthDp < 850) {
-            calculatedColumns = 4; // 720p compact display
-        } else if (widthDp < 1250) {
-            calculatedColumns = 5; // 1080p standard FHD TV
-        } else {
-            calculatedColumns = 6; // 4K UHD or wide format
-        }
+        int cols = Math.round(availWidthDp / (float) targetCardWidthDp);
+        calculatedColumns = Math.max(3, Math.min(8, cols));
     }
 
     public void loadAndDisplayApps() {
@@ -725,18 +804,18 @@ public class DLaunchActivity extends Activity {
         LinearLayout.LayoutParams params;
         int radiusDp;
         if (isFavoriteShelf) {
-            int squircleSize = (int) (88 * density);
+            int squircleSize = responsiveFavoriteTileSize;
             params = new LinearLayout.LayoutParams(squircleSize, squircleSize);
-            int marginHoriz = (int) (7 * density);
+            int marginHoriz = (int) (6 * density);
             int marginVert = (int) (4 * density);
             params.setMargins(marginHoriz, marginVert, marginHoriz, marginVert);
-            tile.setPadding((int) (12 * density), (int) (12 * density), (int) (12 * density), (int) (12 * density));
+            tile.setPadding((int) (10 * density), (int) (10 * density), (int) (10 * density), (int) (10 * density));
             radiusDp = 22;
         } else {
             params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
-            int margin = (int) (8 * density);
+            int margin = (int) (7 * density);
             params.setMargins(margin, margin, margin, margin);
-            tile.setPadding((int) (14 * density), (int) (14 * density), (int) (14 * density), (int) (14 * density));
+            tile.setPadding((int) (12 * density), (int) (12 * density), (int) (12 * density), (int) (12 * density));
             radiusDp = prefs.getCardRadius();
         }
         tile.setLayoutParams(params);
@@ -750,7 +829,7 @@ public class DLaunchActivity extends Activity {
         if (app.getIcon() != null) {
             iconView.setImageDrawable(app.getIcon());
             if (isFavoriteShelf) {
-                int iconSize = (int) (56 * density);
+                int iconSize = responsiveFavoriteIconSize;
                 iconView.getLayoutParams().width = iconSize;
                 iconView.getLayoutParams().height = iconSize;
                 iconView.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -759,11 +838,10 @@ public class DLaunchActivity extends Activity {
                 int h = app.getIcon().getIntrinsicHeight();
                 if (w > 0 && h > 0 && (float) w / h >= 1.35f) {
                     iconView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-                    iconView.getLayoutParams().height = (int) (64 * density);
+                    iconView.getLayoutParams().height = responsiveGridIconSize;
                 } else {
-                    int size = (int) (64 * density);
-                    iconView.getLayoutParams().width = size;
-                    iconView.getLayoutParams().height = size;
+                    iconView.getLayoutParams().width = responsiveGridIconSize;
+                    iconView.getLayoutParams().height = responsiveGridIconSize;
                 }
             }
         }
@@ -1272,12 +1350,18 @@ public class DLaunchActivity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (mainScroll != null && mainScroll.getScrollY() > 50) {
                 mainScroll.smoothScrollTo(0, 0);
+                if (favoritesRow != null && favoritesRow.getChildCount() > 0) {
+                    favoritesRow.getChildAt(0).requestFocus();
+                }
                 return true;
             }
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_HOME) {
             if (mainScroll != null) {
                 mainScroll.smoothScrollTo(0, 0);
+                if (favoritesRow != null && favoritesRow.getChildCount() > 0) {
+                    favoritesRow.getChildAt(0).requestFocus();
+                }
             }
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_SEARCH || keyCode == KeyEvent.KEYCODE_VOICE_ASSIST || keyCode == KeyEvent.KEYCODE_ASSIST) {
