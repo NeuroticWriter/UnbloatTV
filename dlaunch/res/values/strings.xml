@@ -4,6 +4,7 @@
     <string name="section_favorites">Favorites</string>
     <string name="section_all_apps">All Apps</string>
     <string name="btn_inputs">Inputs</string>
+    <string name="btn_wifi">Wi-Fi</string>
     <string name="btn_settings">Settings</string>
     <string name="dialog_pin_favorite">Pin to Favorites</string>
     <string name="dialog_unpin_favorite">Remove from Favorites</string>

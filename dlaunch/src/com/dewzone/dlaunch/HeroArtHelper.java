@@ -152,3 +152,4 @@ public final class HeroArtHelper {
         return dst;
     }
 }
+

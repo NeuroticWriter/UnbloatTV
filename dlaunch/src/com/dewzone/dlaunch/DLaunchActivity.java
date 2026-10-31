@@ -74,11 +74,11 @@ public class DLaunchActivity extends Activity {
     private View brandContainer;
     private TextView brandLetter;
     private TextView brandTitle;
-    private View btnSearch;
     private View btnInputs;
+    private View btnWifi;
     private View btnSettings;
-    private TextView tvSearchLabel;
     private TextView tvInputsLabel;
+    private TextView tvWifiLabel;
     private TextView tvSettingsLabel;
 
     // Hero Showcase Views
@@ -201,11 +201,11 @@ public class DLaunchActivity extends Activity {
         brandLetter = (TextView) findViewById(R.id.brand_letter);
         brandTitle = (TextView) findViewById(R.id.brand_title);
 
-        btnSearch = findViewById(R.id.btn_search);
         btnInputs = findViewById(R.id.btn_inputs);
+        btnWifi = findViewById(R.id.btn_wifi);
         btnSettings = findViewById(R.id.btn_settings);
-        tvSearchLabel = (TextView) findViewById(R.id.tv_search_label);
         tvInputsLabel = (TextView) findViewById(R.id.tv_inputs_label);
+        tvWifiLabel = (TextView) findViewById(R.id.tv_wifi_label);
         tvSettingsLabel = (TextView) findViewById(R.id.tv_settings_label);
 
         heroContainer = findViewById(R.id.hero_container);
@@ -239,32 +239,32 @@ public class DLaunchActivity extends Activity {
     private void setupHeader() {
         updateGreetingAndDate();
 
-        if (btnSearch != null) {
-            btnSearch.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
-            btnSearch.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SEARCH));
-            if (btnInputs != null) {
-                btnSearch.setNextFocusRightId(btnInputs.getId());
-            }
-            btnSearch.setNextFocusDownId(R.id.favorites_scroll);
-        }
-
         if (btnInputs != null) {
             btnInputs.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
             btnInputs.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_INPUTS));
-            if (btnSearch != null) {
-                btnInputs.setNextFocusLeftId(btnSearch.getId());
-            }
-            if (btnSettings != null) {
-                btnInputs.setNextFocusRightId(btnSettings.getId());
+            if (btnWifi != null) {
+                btnInputs.setNextFocusRightId(btnWifi.getId());
             }
             btnInputs.setNextFocusDownId(R.id.favorites_scroll);
+        }
+
+        if (btnWifi != null) {
+            btnWifi.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
+            btnWifi.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_WIFI));
+            if (btnInputs != null) {
+                btnWifi.setNextFocusLeftId(btnInputs.getId());
+            }
+            if (btnSettings != null) {
+                btnWifi.setNextFocusRightId(btnSettings.getId());
+            }
+            btnWifi.setNextFocusDownId(R.id.favorites_scroll);
         }
 
         if (btnSettings != null) {
             btnSettings.setOnFocusChangeListener(new FocusAnimator(this, 1.06f));
             btnSettings.setOnClickListener(new ActionClickListener(this, ActionClickListener.ACTION_SETTINGS));
-            if (btnInputs != null) {
-                btnSettings.setNextFocusLeftId(btnInputs.getId());
+            if (btnWifi != null) {
+                btnSettings.setNextFocusLeftId(btnWifi.getId());
             }
             btnSettings.setNextFocusDownId(R.id.favorites_scroll);
         }
@@ -322,11 +322,11 @@ public class DLaunchActivity extends Activity {
             if (brandTitle != null) {
                 brandTitle.setText("Spooky TV");
             }
-            if (tvSearchLabel != null) {
-                tvSearchLabel.setText("🎙️ Search");
-            }
             if (tvInputsLabel != null) {
                 tvInputsLabel.setText("🦇 Inputs");
+            }
+            if (tvWifiLabel != null) {
+                tvWifiLabel.setText("📶 Wi-Fi");
             }
             if (tvSettingsLabel != null) {
                 tvSettingsLabel.setText("👻 Settings");
@@ -339,11 +339,11 @@ public class DLaunchActivity extends Activity {
             if (brandTitle != null) {
                 brandTitle.setText("Launch");
             }
-            if (tvSearchLabel != null) {
-                tvSearchLabel.setText("Search");
-            }
             if (tvInputsLabel != null) {
                 tvInputsLabel.setText(R.string.btn_inputs);
+            }
+            if (tvWifiLabel != null) {
+                tvWifiLabel.setText(R.string.btn_wifi);
             }
             if (tvSettingsLabel != null) {
                 tvSettingsLabel.setText(R.string.btn_settings);
@@ -355,11 +355,11 @@ public class DLaunchActivity extends Activity {
         }
 
         // 3. Header Action Buttons
-        if (btnSearch != null) {
-            btnSearch.setBackground(createPillSelector(density, accentColor));
-        }
         if (btnInputs != null) {
             btnInputs.setBackground(createPillSelector(density, accentColor));
+        }
+        if (btnWifi != null) {
+            btnWifi.setBackground(createPillSelector(density, accentColor));
         }
         if (btnSettings != null) {
             btnSettings.setBackground(createPillSelector(density, accentColor));
@@ -457,11 +457,14 @@ public class DLaunchActivity extends Activity {
         normal.setColor(normalColor);
         normal.setStroke(strokeNormalPx, Color.parseColor("#26374D"));
 
+        // When focused, the card smoothly illuminates slightly, but DOES NOT draw an extra thick stroke.
+        // The single crystalline diamond rim and glow is rendered exclusively by GlassHighlightView,
+        // completely eliminating the double lining!
         GradientDrawable focused = new GradientDrawable();
         focused.setShape(GradientDrawable.RECTANGLE);
         focused.setCornerRadius(radiusPx);
-        focused.setColor(Color.parseColor("#E6132034"));
-        focused.setStroke(strokeFocusedPx, accentColor);
+        focused.setColor(Color.parseColor("#991C2C42"));
+        focused.setStroke(strokeNormalPx, Color.parseColor("#40FFFFFF"));
 
         StateListDrawable states = new StateListDrawable();
         states.addState(new int[]{android.R.attr.state_focused}, focused);
@@ -621,6 +624,9 @@ public class DLaunchActivity extends Activity {
             }
             if (favCount > 0 && btnInputs != null && btnSettings != null) {
                 btnInputs.setNextFocusDownId(favoritesRow.getChildAt(0).getId());
+                if (btnWifi != null) {
+                    btnWifi.setNextFocusDownId(favoritesRow.getChildAt(0).getId());
+                }
                 btnSettings.setNextFocusDownId(favoritesRow.getChildAt(0).getId());
             }
         }
@@ -692,6 +698,9 @@ public class DLaunchActivity extends Activity {
                     }
                     if (rowItemCount > 0 && btnInputs != null && btnSettings != null) {
                         btnInputs.setNextFocusDownId(rowLayout.getChildAt(0).getId());
+                        if (btnWifi != null) {
+                            btnWifi.setNextFocusDownId(rowLayout.getChildAt(0).getId());
+                        }
                         btnSettings.setNextFocusDownId(rowLayout.getChildAt(0).getId());
                     }
                 }
@@ -949,6 +958,26 @@ public class DLaunchActivity extends Activity {
             }
         }
         Toast.makeText(this, "Input switcher not supported on this TV hardware", Toast.LENGTH_SHORT).show();
+    }
+
+    public void launchWifiSettings() {
+        Intent[] wifiIntents = new Intent[]{
+                new Intent(Settings.ACTION_WIFI_SETTINGS),
+                new Intent("android.settings.WIFI_SETTINGS"),
+                new Intent(Settings.ACTION_WIRELESS_SETTINGS),
+                new Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS),
+                new Intent(Settings.ACTION_SETTINGS)
+        };
+
+        for (Intent intent : wifiIntents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+        Toast.makeText(this, "Wi-Fi settings not directly accessible", Toast.LENGTH_SHORT).show();
     }
 
     public void openDefaultHomeSettings() {
@@ -1399,7 +1428,7 @@ public class DLaunchActivity extends Activity {
     private static class ActionClickListener implements View.OnClickListener {
         public static final int ACTION_INPUTS = 1;
         public static final int ACTION_SETTINGS = 2;
-        public static final int ACTION_SEARCH = 3;
+        public static final int ACTION_WIFI = 3;
 
         private final DLaunchActivity activity;
         private final int action;
@@ -1415,8 +1444,8 @@ public class DLaunchActivity extends Activity {
                 activity.launchInputs();
             } else if (action == ACTION_SETTINGS) {
                 activity.showSettingsMenu();
-            } else if (action == ACTION_SEARCH) {
-                activity.launchVoiceSearch();
+            } else if (action == ACTION_WIFI) {
+                activity.launchWifiSettings();
             }
         }
     }

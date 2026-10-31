@@ -66,27 +66,80 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="14dp">
 
-            <!-- Time, Greeting & Date -->
+            <!-- Left Container: Brand Pill + Greeting + Clock + Date (guaranteed to not overlap right buttons) -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/header_left_block"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/header_buttons_container"
+                android:layout_marginEnd="16dp"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/greeting_view"
+                <!-- Row 1: Brand Emblem + Time Greeting -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GOOD EVENING"
-                    android:textColor="#A0CBD5E1"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.22"
-                    android:textAllCaps="true" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
+                    <!-- Brand Capsule (Non-overlapping, left-aligned) -->
+                    <LinearLayout
+                        android:id="@+id/brand_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_pill_normal"
+                        android:paddingStart="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="10dp"
+                        android:paddingBottom="3dp">
+
+                        <TextView
+                            android:id="@+id/brand_letter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="D"
+                            android:textColor="@color/card_border_focused"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/brand_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:text="Launch"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp"
+                            android:textStyle="normal" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="•"
+                        android:textColor="#5594A3B8"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/greeting_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GOOD EVENING"
+                        android:textColor="#A0CBD5E1"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.20"
+                        android:textAllCaps="true" />
+                </LinearLayout>
+
+                <!-- Row 2: Clock + AM/PM + Divider + Date -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -102,7 +155,7 @@
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
                         android:textColor="@color/text_primary"
-                        android:textSize="48sp"
+                        android:textSize="40sp"
                         android:fontFamily="sans-serif-light"
                         android:includeFontPadding="false"
                         android:letterSpacing="-0.03" />
@@ -111,12 +164,12 @@
                         android:id="@+id/ampm_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginBottom="6dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="5dp"
                         android:format12Hour="a"
                         android:format24Hour=""
                         android:textColor="#B3FFFFFF"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:fontFamily="sans-serif-medium"
                         android:letterSpacing="0.08"
                         android:textAllCaps="true" />
@@ -124,58 +177,25 @@
                     <View
                         android:id="@+id/clock_divider"
                         android:layout_width="1.5dp"
-                        android:layout_height="24dp"
-                        android:layout_marginStart="14dp"
-                        android:layout_marginEnd="14dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="7dp"
                         android:background="#33FFFFFF" />
 
                     <TextView
                         android:id="@+id/date_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="7dp"
+                        android:layout_marginBottom="6dp"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         android:fontFamily="sans-serif"
                         android:letterSpacing="0.02" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Center Brand Pill -->
-            <LinearLayout
-                android:id="@+id/brand_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:background="@drawable/bg_pill_normal"
-                android:paddingStart="14dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="6dp">
-
-                <TextView
-                    android:id="@+id/brand_letter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="D"
-                    android:textColor="@color/card_border_focused"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/brand_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Launch"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="normal" />
-            </LinearLayout>
-
-            <!-- Quick Action Buttons (Search, Inputs, Settings) -->
+            <!-- Right Container: Quick Action Buttons (Inputs, Wi-Fi, Settings) -->
             <LinearLayout
                 android:id="@+id/header_buttons_container"
                 android:layout_width="wrap_content"
@@ -186,48 +206,12 @@
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
-                <!-- Voice Search Button -->
-                <LinearLayout
-                    android:id="@+id/btn_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/bg_pill_selector"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp">
-
-                    <TextView
-                        android:id="@+id/ic_search_view"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
-                        android:text="🎙️"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/tv_search_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Search"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- TV Inputs Switcher -->
+                <!-- 1. TV Inputs Switcher -->
                 <LinearLayout
                     android:id="@+id/btn_inputs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="3dp"
                     android:background="@drawable/bg_pill_selector"
                     android:clickable="true"
                     android:focusable="true"
@@ -235,15 +219,15 @@
                     android:orientation="horizontal"
                     android:clipChildren="false"
                     android:clipToPadding="false"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp">
+                    android:paddingStart="14dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="7dp">
 
                     <ImageView
                         android:id="@+id/ic_inputs_view"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
                         android:layout_marginEnd="6dp"
                         android:src="@drawable/ic_inputs" />
 
@@ -253,16 +237,16 @@
                         android:layout_height="wrap_content"
                         android:text="@string/btn_inputs"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <!-- TV Settings -->
+                <!-- 2. TV Wi-Fi Network Button -->
                 <LinearLayout
-                    android:id="@+id/btn_settings"
+                    android:id="@+id/btn_wifi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp"
+                    android:layout_margin="3dp"
                     android:background="@drawable/bg_pill_selector"
                     android:clickable="true"
                     android:focusable="true"
@@ -270,15 +254,50 @@
                     android:orientation="horizontal"
                     android:clipChildren="false"
                     android:clipToPadding="false"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp">
+                    android:paddingStart="14dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="7dp">
+
+                    <ImageView
+                        android:id="@+id/ic_wifi_view"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_wifi" />
+
+                    <TextView
+                        android:id="@+id/tv_wifi_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/btn_wifi"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- 3. TV Settings -->
+                <LinearLayout
+                    android:id="@+id/btn_settings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:background="@drawable/bg_pill_selector"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:paddingStart="14dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="7dp">
 
                     <ImageView
                         android:id="@+id/ic_settings_view"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
                         android:layout_marginEnd="6dp"
                         android:src="@drawable/ic_settings" />
 
@@ -288,30 +307,30 @@
                         android:layout_height="wrap_content"
                         android:text="@string/btn_settings"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
+                        android:textSize="12sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
 
-        <!-- CINEMATIC HERO SHOWCASE -->
+        <!-- CINEMATIC HERO SHOWCASE (Streamlined & Proportional) -->
         <LinearLayout
             android:id="@+id/hero_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="12dp"
             android:clipChildren="false"
             android:clipToPadding="false">
 
             <!-- Hero Glass Frame for Focused Icon -->
             <FrameLayout
                 android:id="@+id/hero_icon_frame"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
                 android:background="@drawable/bg_hero_icon_frame"
-                android:padding="8dp">
+                android:padding="6dp">
 
                 <ImageView
                     android:id="@+id/hero_icon_view"
@@ -326,7 +345,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="18dp"
+                android:layout_marginStart="14dp"
                 android:orientation="vertical">
 
                 <LinearLayout
@@ -341,9 +360,9 @@
                         android:layout_height="wrap_content"
                         android:text="Select an app"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="32sp"
+                        android:textSize="26sp"
                         android:fontFamily="sans-serif-medium"
-                        android:letterSpacing="-0.02"
+                        android:letterSpacing="-0.01"
                         android:includeFontPadding="false"
                         android:singleLine="true" />
 
@@ -351,17 +370,17 @@
                         android:id="@+id/hero_badge_pill"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="14dp"
+                        android:layout_marginStart="10dp"
                         android:background="@drawable/bg_hero_badge"
-                        android:paddingStart="10dp"
-                        android:paddingTop="3dp"
-                        android:paddingEnd="10dp"
-                        android:paddingBottom="3dp"
+                        android:paddingStart="8dp"
+                        android:paddingTop="2dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="2dp"
                         android:text="✦ FAVORITE"
                         android:textColor="#00E5FF"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textStyle="bold"
-                        android:letterSpacing="0.10"
+                        android:letterSpacing="0.08"
                         android:visibility="gone" />
                 </LinearLayout>
 
@@ -369,12 +388,12 @@
                     android:id="@+id/hero_subtitle_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="2dp"
                     android:text="✦ Press OK to Launch  •  Long-Press for Options"
-                    android:textColor="#94A3B8"
-                    android:textSize="13sp"
+                    android:textColor="#8594A3B8"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif"
-                    android:letterSpacing="0.04" />
+                    android:letterSpacing="0.03" />
             </LinearLayout>
         </LinearLayout>
 

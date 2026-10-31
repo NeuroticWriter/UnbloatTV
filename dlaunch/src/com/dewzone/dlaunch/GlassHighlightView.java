@@ -168,3 +168,4 @@ public class GlassHighlightView extends View {
         }
     }
 }
+
