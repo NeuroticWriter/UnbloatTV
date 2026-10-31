@@ -1,54 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center"
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:clickable="true"
-    android:background="@drawable/bg_tile_selector"
-    android:padding="16dp"
-    android:layout_margin="8dp">
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="@drawable/bg_tile_selector">
 
-    <!-- Top Badge Row (Star if pinned) -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/badge_favorite"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="end|top"
-            android:src="@drawable/ic_star"
-            android:visibility="gone" />
-    </FrameLayout>
-
-    <!-- App Icon -->
-    <ImageView
-        android:id="@+id/app_icon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_gravity="center_horizontal"
-        android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
-        android:contentDescription="@null" />
-
-    <!-- App Label -->
-    <TextView
-        android:id="@+id/app_label"
+    <!-- Centered App Content (Icon + Label) - Uniform alignment across all tiles -->
+    <LinearLayout
+        android:id="@+id/tile_content_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:textColor="@color/text_primary"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever" />
+        android:padding="12dp"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <!-- App Icon -->
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:contentDescription="@null" />
 
+        <!-- App Label -->
+        <TextView
+            android:id="@+id/app_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever" />
+    </LinearLayout>
+
+    <!-- Top-Right Favorite Star Badge (Elevated near top edge of card, never pushes content) -->
+    <ImageView
+        android:id="@+id/badge_favorite"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_star"
+        android:visibility="gone" />
+
+</FrameLayout>

@@ -803,21 +803,27 @@ public class DLaunchActivity extends Activity {
 
         LinearLayout.LayoutParams params;
         int radiusDp;
+        View contentBox = tile.findViewById(R.id.tile_content_box);
         if (isFavoriteShelf) {
             int squircleSize = responsiveFavoriteTileSize;
             params = new LinearLayout.LayoutParams(squircleSize, squircleSize);
             int marginHoriz = (int) (6 * density);
             int marginVert = (int) (4 * density);
             params.setMargins(marginHoriz, marginVert, marginHoriz, marginVert);
-            tile.setPadding((int) (10 * density), (int) (10 * density), (int) (10 * density), (int) (10 * density));
+            if (contentBox != null) {
+                contentBox.setPadding((int) (10 * density), (int) (10 * density), (int) (10 * density), (int) (10 * density));
+            }
             radiusDp = 22;
         } else {
             params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
             int margin = (int) (7 * density);
             params.setMargins(margin, margin, margin, margin);
-            tile.setPadding((int) (12 * density), (int) (12 * density), (int) (12 * density), (int) (12 * density));
+            if (contentBox != null) {
+                contentBox.setPadding((int) (12 * density), (int) (12 * density), (int) (12 * density), (int) (12 * density));
+            }
             radiusDp = prefs.getCardRadius();
         }
+        tile.setPadding(0, 0, 0, 0);
         tile.setLayoutParams(params);
 
         tile.setBackground(createTileSelector(density, radiusDp, prefs.getAccentColor(), prefs.getCardTransparency()));
